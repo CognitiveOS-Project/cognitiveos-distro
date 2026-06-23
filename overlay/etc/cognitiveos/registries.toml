@@ -1,0 +1,9 @@
+[[registry]]
+name = "default"
+url = "https://registry.cognitive-os.org/v1"
+priority = 100
+
+[[registry]]
+name = "community"
+url = "https://community-registry.cognitive-os.org/v1"
+priority = 200

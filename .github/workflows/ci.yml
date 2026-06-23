@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [development, main]
+  pull_request:
+    branches: [development]
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run shellcheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: ./scripts
+          severity: warning
+
+  build-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+      - name: Verify Go compilation (cpm)
+        working-directory: /tmp
+        run: |
+          git clone --depth=1 https://github.com/CognitiveOS-Project/cpm.git
+          cd cpm
+          CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /dev/null .
+      - name: Verify Go compilation (cognitiveosd)
+        working-directory: /tmp
+        run: |
+          git clone --depth=1 https://github.com/CognitiveOS-Project/cognitiveosd.git
+          cd cognitiveosd
+          CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /dev/null .
+      - name: Verify Go compilation (cli)
+        working-directory: /tmp
+        run: |
+          git clone --depth=1 https://github.com/CognitiveOS-Project/cli.git
+          cd cli
+          CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /dev/null .
+      - name: Verify Go compilation (inference)
+        working-directory: /tmp
+        run: |
+          git clone --depth=1 https://github.com/CognitiveOS-Project/inference.git
+          cd inference
+          CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /dev/null .
