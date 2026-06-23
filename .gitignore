@@ -1,0 +1,20 @@
+# Build output
+/output/
+/iso/
+/images/
+*.iso
+*.img
+
+# Alpine build cache
+/cache/
+/work/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
