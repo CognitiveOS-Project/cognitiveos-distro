@@ -51,6 +51,18 @@ make install-local
 
 Output from `make iso` / `make rpi` goes to `output/`. Run `make clean` to remove build artifacts.
 
+## Related
+
+- [CognitiveOS](https://github.com/CognitiveOS-Project/cognitiveos) — main project repository
+- [cognitive-os.org](https://cognitive-os.org) — project website
+- [cpm](https://github.com/CognitiveOS-Project/cpm) — package manager included in the distro
+- [cognitiveosd](https://github.com/CognitiveOS-Project/cognitiveosd) — system daemon included in the distro
+- [cli](https://github.com/CognitiveOS-Project/cli) — TUI included in the distro
+- [inference](https://github.com/CognitiveOS-Project/inference) — inference engine included in the distro
+- [core-mcp-bridges](https://github.com/CognitiveOS-Project/core-mcp-bridges) — MCP bridges included in the distro
+- [Product Specs](https://github.com/CognitiveOS-Project/product-specs) — distro build specification
+- [CognitiveOS Project](https://github.com/CognitiveOS-Project) — GitHub organization
+
 ## Author
 
 **Jean Machuca** — [GitHub](https://github.com/jeanmachuca) · [Sponsor](https://github.com/sponsors/jeanmachuca)
