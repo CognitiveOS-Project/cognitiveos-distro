@@ -50,3 +50,7 @@ make install-local
 ```
 
 Output from `make iso` / `make rpi` goes to `output/`. Run `make clean` to remove build artifacts.
+
+## Author
+
+**Jean Machuca** — [GitHub](https://github.com/jeanmachuca) · [Sponsor](https://github.com/sponsors/jeanmachuca)
