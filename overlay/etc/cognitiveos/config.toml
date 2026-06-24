@@ -1,0 +1,29 @@
+[system]
+hostname = "cognitiveos"
+timezone = "UTC"
+autologin = true
+
+[inference]
+idle_timeout_seconds = 300
+backend = "cli"
+endpoint = "http://127.0.0.1:11434"
+
+[daemon]
+socket_path = "/cognitiveos/run/daemon.sock"
+audit_interval_seconds = 60
+mcp_bin_dir = "/usr/local/lib/cognitiveos/bridges"
+
+[network]
+default_interface = "wlan0"
+auto_connect = true
+wpa_supplicant_conf = "/etc/wpa_supplicant/wpa_supplicant.conf"
+
+[audio]
+default_sink = "default"
+default_source = "default"
+volume = 75
+
+[display]
+framebuffer_device = "/dev/fb0"
+media_player = "mpv"
+image_viewer = "fbv"

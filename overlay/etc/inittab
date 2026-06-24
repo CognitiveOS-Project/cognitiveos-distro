@@ -1,0 +1,4 @@
+# CognitiveOS
+tty1::respawn:/usr/local/bin/cognitiveos-cli
+ttyS0::respawn:/usr/local/bin/cognitiveos-cli
+tty2::respawn:/sbin/getty 38400 tty2
