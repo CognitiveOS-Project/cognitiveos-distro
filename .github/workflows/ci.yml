@@ -23,28 +23,28 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.23"
+          go-version: "1.24"
       - name: Verify Go compilation (cpm)
         working-directory: /tmp
         run: |
           git clone --depth=1 https://github.com/CognitiveOS-Project/cpm.git
           cd cpm
-          CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /dev/null .
+          CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /dev/null ./cmd/cpm
       - name: Verify Go compilation (cognitiveosd)
         working-directory: /tmp
         run: |
           git clone --depth=1 https://github.com/CognitiveOS-Project/cognitiveosd.git
           cd cognitiveosd
-          CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /dev/null .
+          CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /dev/null ./cmd/cognitiveosd
       - name: Verify Go compilation (cli)
         working-directory: /tmp
         run: |
           git clone --depth=1 https://github.com/CognitiveOS-Project/cli.git
           cd cli
-          CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /dev/null .
+          CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /dev/null ./cmd/cognitiveos-cli
       - name: Verify Go compilation (inference)
         working-directory: /tmp
         run: |
           git clone --depth=1 https://github.com/CognitiveOS-Project/inference.git
           cd inference
-          CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /dev/null .
+          CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /dev/null ./cmd/coginfer

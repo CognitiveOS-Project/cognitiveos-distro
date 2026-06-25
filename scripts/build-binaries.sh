@@ -21,22 +21,22 @@ done
 
 echo "Building cpm..."
 cd "${SRC_DIR}/../cpm"
-CGO_ENABLED=0 GOOS=linux ${GO} build -ldflags="-s -w" -o "${BIN_DIR}/cpm" .
+CGO_ENABLED=0 GOOS=linux ${GO} build -ldflags="-s -w" -o "${BIN_DIR}/cpm" ./cmd/cpm
 echo "  -> cpm built"
 
 echo "Building cognitiveosd..."
 cd "${SRC_DIR}/../cognitiveosd"
-CGO_ENABLED=0 GOOS=linux ${GO} build -ldflags="-s -w" -o "${BIN_DIR}/cognitiveosd" .
+CGO_ENABLED=0 GOOS=linux ${GO} build -ldflags="-s -w" -o "${BIN_DIR}/cognitiveosd" ./cmd/cognitiveosd
 echo "  -> cognitiveosd built"
 
 echo "Building cli..."
 cd "${SRC_DIR}/../cli"
-CGO_ENABLED=0 GOOS=linux ${GO} build -ldflags="-s -w" -o "${BIN_DIR}/cognitiveos-cli" .
+CGO_ENABLED=0 GOOS=linux ${GO} build -ldflags="-s -w" -o "${BIN_DIR}/cognitiveos-cli" ./cmd/cognitiveos-cli
 echo "  -> cognitiveos-cli built"
 
 echo "Building inference..."
 cd "${SRC_DIR}/../inference"
-CGO_ENABLED=0 GOOS=linux ${GO} build -ldflags="-s -w" -o "${BIN_DIR}/cognitiveos-inference" .
+CGO_ENABLED=0 GOOS=linux ${GO} build -ldflags="-s -w" -o "${BIN_DIR}/cognitiveos-inference" ./cmd/coginfer
 echo "  -> cognitiveos-inference built"
 
 echo "Building core-mcp-bridges..."
