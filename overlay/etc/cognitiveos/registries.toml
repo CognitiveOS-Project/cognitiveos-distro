@@ -1,9 +1,10 @@
-[[registry]]
-name = "default"
-url = "https://registry.cognitive-os.org/v1"
-priority = 100
+[official]
+primary = "https://registry-us-all-distros-official.cognitive-os.org/v1"
 
-[[registry]]
-name = "community"
-url = "https://community-registry.cognitive-os.org/v1"
-priority = 200
+[official.mirrors]
+eu = "https://registry-eu-all-distros-official.cognitive-os.org/v1"
+jp = "https://registry-jp-all-distros-official.cognitive-os.org/v1"
+sg = "https://registry-sg-all-distros-official.cognitive-os.org/v1"
+
+[alternative]
+community = "https://community-registry.cognitive-os.org/v1"
