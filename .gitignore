@@ -19,5 +19,6 @@ Thumbs.db
 *.swp
 *.swo
 
-# Editor backups
+# Editor backups & trailing-space typos
 * 2.*
+* 2/
