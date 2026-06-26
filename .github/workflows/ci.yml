@@ -48,3 +48,20 @@ jobs:
           git clone --depth=1 https://github.com/CognitiveOS-Project/inference.git
           cd inference
           CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /dev/null ./cmd/coginfer
+
+  script-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate scripts syntax
+        run: |
+          for script in scripts/*.sh; do
+            echo "Checking $script..."
+            sh -n "$script"
+          done
+          echo "All scripts pass syntax check"
+        working-directory: /tmp
+        run: |
+          git clone --depth=1 https://github.com/CognitiveOS-Project/inference.git
+          cd inference
+          CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /dev/null ./cmd/coginfer

@@ -11,7 +11,8 @@ SCRIPTS_DIR := ./scripts
 
 GO := /tmp/go/bin/go
 
-.PHONY: all iso rpi clean distclean docker shell checksums sign install-local deps
+.PHONY: all iso rpi clean distclean docker shell checksums sign
+.PHONY: install-local distro-tarball publish-cgp docker-release release deps
 
 all: iso rpi checksums sign
 
@@ -47,7 +48,6 @@ shell:
 		-v "$(CURDIR)/../cli:/src/cli" \
 		-v "$(CURDIR)/../inference:/src/inference" \
 		-v "$(CURDIR)/../core-mcp-bridges:/src/core-mcp-bridges" \
-		-v "$(CURDIR):/workspace" \
 		-w /workspace \
 		cognitiveos-builder /bin/sh
 
@@ -64,6 +64,33 @@ install-local: deps
 	@echo "==> Building overlay..."
 	bash $(SCRIPTS_DIR)/build-overlay.sh
 	@echo "  done."
+
+distro-tarball: install-local
+	@echo "==> Building distro tarball..."
+	bash $(SCRIPTS_DIR)/build-distro-tarball.sh
+	@echo "  done."
+
+publish-cgp:
+	@echo "==> Publishing .cgp packages to registry..."
+	@if [ -z "$${REGISTRY_TOKEN}" ]; then \
+		echo "  ERROR: REGISTRY_TOKEN not set"; exit 1; \
+	fi
+	@VERSION=$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev")
+	@for bin in $(BUILD_DIR)/bin/*; do \
+		name=$$(basename "$$bin"); \
+		[ "$$name" = "bridges" ] && continue; \
+		bash $(SCRIPTS_DIR)/publish-cgp.sh --name "$$name" --version "$$VERSION" --binary "$$bin"; \
+	done
+	@echo "  done."
+
+docker-release:
+	@echo "==> Building Docker release image..."
+	docker build -f docker/Dockerfile.release -t cognitiveos:$(VERSION) .
+	@echo "  done."
+
+release: distro-tarball docker-release
+	@echo "==> Release complete. Artifacts in $(OUTPUT_DIR)"
+	ls -lh $(OUTPUT_DIR)/
 
 deps:
 	@echo "==> Checking dependencies..."
