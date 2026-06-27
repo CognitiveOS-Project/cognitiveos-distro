@@ -35,26 +35,13 @@ jobs:
 
       - name: Build ISO image (x86_64)
         run: |
-          docker run --rm --privileged \
-            -v "${{ github.workspace }}:/workspace" \
-            alpine:edge sh -c "
-              apk add --no-cache alpine-conf alpine-base e2fsprogs squashfs-tools dosfstools \
-                mtools grub grub-bios grub-efi xorriso syslinux util-linux
-              cd /workspace
-              mkdir -p output
-              bash scripts/build-iso.sh
-            " || echo "ISO build skipped (requires mkimage in Alpine)"
+          mkdir -p output
+          bash scripts/build-image.sh --profile x86_64
 
       - name: Build RPi image (aarch64)
         run: |
-          docker run --rm --privileged \
-            -v "${{ github.workspace }}:/workspace" \
-            alpine:edge sh -c "
-              apk add --no-cache alpine-conf alpine-base e2fsprogs dosfstools
-              cd /workspace
-              mkdir -p output
-              bash scripts/build-rpi.sh
-            " || echo "RPi build skipped (requires mkimage in Alpine)"
+          mkdir -p output
+          bash scripts/build-image.sh --profile aarch64
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

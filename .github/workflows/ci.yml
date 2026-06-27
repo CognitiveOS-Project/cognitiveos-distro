@@ -60,8 +60,14 @@ jobs:
             sh -n "$script"
           done
           echo "All scripts pass syntax check"
-        working-directory: /tmp
+
+  image-build:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ISO via Docker
         run: |
-          git clone --depth=1 https://github.com/CognitiveOS-Project/inference.git
-          cd inference
-          CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /dev/null ./cmd/coginfer
+          mkdir -p output
+          bash scripts/build-image.sh --profile x86_64
