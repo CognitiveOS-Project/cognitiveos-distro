@@ -34,10 +34,30 @@ cd "${SRC_DIR}/../cli"
 CGO_ENABLED=0 GOOS=linux ${GO} build -ldflags="-s -w" -o "${BIN_DIR}/cognitiveos-cli" ./cmd/cognitiveos-cli
 echo "  -> cognitiveos-cli built"
 
-echo "Building inference..."
+echo "Building llama.cpp (vendored in inference)..."
+LLAMA_CPP_DIR="${SRC_DIR}/../inference/vendor/llama.cpp"
+if [ -f "${LLAMA_CPP_DIR}/CMakeLists.txt" ]; then
+    cd "${SRC_DIR}/../inference"
+    git submodule update --init --recursive 2>/dev/null || echo "  WARNING: submodule init failed, build may fail if llama.cpp not present"
+    cd "${LLAMA_CPP_DIR}"
+    cmake -B build -DLLAMA_NO_ACCELERATE=1 -DLLAMA_STATIC=1 -DLLAMA_NATIVE=0 \
+      -DBUILD_SHARED_LIBS=0 -DLLAMA_BUILD_TESTS=0 \
+      -DLLAMA_BUILD_EXAMPLES=0 -DLLAMA_BUILD_SERVER=0
+    cmake --build build --config Release -j$(nproc)
+    echo "  -> llama.cpp built"
+else
+    echo "  WARNING: llama.cpp not found at ${LLAMA_CPP_DIR}, CGo builds will fail"
+fi
+
+echo "Building inference (coginfer)..."
 cd "${SRC_DIR}/../inference"
-CGO_ENABLED=0 GOOS=linux ${GO} build -ldflags="-s -w" -o "${BIN_DIR}/cognitiveos-inference" ./cmd/coginfer
+CGO_ENABLED=1 GOOS=linux ${GO} build -tags=cgo -ldflags="-s -w" -o "${BIN_DIR}/cognitiveos-inference" ./cmd/coginfer
 echo "  -> cognitiveos-inference built"
+
+echo "Building cograw..."
+cd "${SRC_DIR}/../inference"
+CGO_ENABLED=1 GOOS=linux ${GO} build -tags=cgo -ldflags="-s -w" -o "${BIN_DIR}/cograw" ./cmd/cograw
+echo "  -> cograw built"
 
 echo "Building core-mcp-bridges..."
 cd "${SRC_DIR}/../core-mcp-bridges"

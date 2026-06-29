@@ -1,14 +1,26 @@
 # Stage 1: Build Go binaries
 FROM golang:1.25-alpine AS builder
 
-RUN apk add --no-cache git ca-certificates
+RUN apk add --no-cache git ca-certificates cmake build-base gcc g++ openssh-client
+
+# Configure SSH for private repo access
+RUN mkdir -p /root/.ssh && ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 WORKDIR /src
 
 # Clone all repos
 RUN for repo in cpm cognitiveosd cli inference core-mcp-bridges; do \
-        git clone --depth=1 "https://github.com/CognitiveOS-Project/${repo}.git" "${repo}"; \
+        git clone --depth=1 "git@github.com:CognitiveOS-Project/${repo}.git" "${repo}"; \
     done
+
+# Build llama.cpp (vendored in inference repo)
+RUN cd /src/inference && \
+    git submodule update --init --recursive && \
+    cd vendor/llama.cpp && \
+    cmake -B build -DLLAMA_NO_ACCELERATE=1 -DLLAMA_STATIC=1 -DLLAMA_NATIVE=0 \
+      -DBUILD_SHARED_LIBS=0 -DLLAMA_BUILD_TESTS=0 \
+      -DLLAMA_BUILD_EXAMPLES=0 -DLLAMA_BUILD_SERVER=0 && \
+    cmake --build build --config Release -j$(nproc)
 
 RUN mkdir -p /out/bin/bridges
 
@@ -21,8 +33,11 @@ RUN cd /src/cognitiveosd && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -
 # Build cli
 RUN cd /src/cli && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cognitiveos-cli .
 
-# Build inference
-RUN cd /src/inference && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cognitiveos-inference .
+# Build inference (coginfer) — with CGo for llama.cpp
+RUN cd /src/inference && CGO_ENABLED=1 GOOS=linux go build -tags=cgo -ldflags="-s -w" -o /out/bin/cognitiveos-inference ./cmd/coginfer
+
+# Build cograw — with CGo for llama.cpp
+RUN cd /src/inference && CGO_ENABLED=1 GOOS=linux go build -tags=cgo -ldflags="-s -w" -o /out/bin/cograw ./cmd/cograw
 
 # Build core-mcp-bridges
 WORKDIR /src/core-mcp-bridges
