@@ -34,7 +34,7 @@ RUN apk add --no-cache \
     libgpiod gpiod-tools kbd \
     fbv mpv fbi \
     dosfstools e2fsprogs squashfs-tools \
-    acpi acpid
+    acpid
 
 COPY --from=builder /out/bin/ /usr/local/bin/
 COPY overlay/ /
