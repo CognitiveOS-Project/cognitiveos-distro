@@ -10,13 +10,10 @@ iw
 wpa_supplicant
 dhcpcd
 libgpiod
-gpiod-tools
+libgpiod-tools
 kbd
-fbv
 mpv
-fbi
 dosfstools
 e2fsprogs
 squashfs-tools
-acpi
 acpid
