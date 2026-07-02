@@ -85,7 +85,7 @@ fi
 if command -v docker >/dev/null 2>&1; then
     echo "==> mkimage not found, building via Docker"
 
-    MKDeps="alpine-conf alpine-base e2fsprogs squashfs-tools dosfstools mtools"
+    MKDeps="bash alpine-conf alpine-base e2fsprogs squashfs-tools dosfstools mtools"
     docker run --rm --privileged \
         -v "${SRC_DIR}:/workspace" \
         alpine:edge sh -c "
