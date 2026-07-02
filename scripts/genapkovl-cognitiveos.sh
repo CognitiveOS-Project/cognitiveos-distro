@@ -78,7 +78,6 @@ iw
 wpa_supplicant
 dhcpcd
 libgpiod
-libgpiod-tools
 kbd
 mpv
 dosfstools

@@ -23,7 +23,7 @@ profile_cognitiveos() {
             if [ -n "$COGNITIVEOS_PACKAGES_FILE" ] && [ -f "$COGNITIVEOS_PACKAGES_FILE" ]; then
                 apks=$(grep -v '^#' "$COGNITIVEOS_PACKAGES_FILE" | tr '\n' ' ')
             else
-                apks="alpine-base busybox openrc linux-lts alsa-utils alsa-lib iw wpa_supplicant dhcpcd libgpiod libgpiod-tools kbd mpv dosfstools e2fsprogs squashfs-tools acpid"
+                apks="alpine-base busybox openrc linux-lts alsa-utils alsa-lib iw wpa_supplicant dhcpcd libgpiod kbd mpv dosfstools e2fsprogs squashfs-tools acpid"
             fi
             ;;
         aarch64)
@@ -43,7 +43,7 @@ profile_cognitiveos() {
             if [ -n "$COGNITIVEOS_PACKAGES_FILE" ] && [ -f "$COGNITIVEOS_PACKAGES_FILE" ]; then
                 apks=$(grep -v '^#' "$COGNITIVEOS_PACKAGES_FILE" | tr '\n' ' ')
             else
-                apks="alpine-base busybox openrc linux-rpi raspberrypi-bootloader raspberrypi-firmware alsa-utils alsa-lib iw wpa_supplicant dhcpcd libgpiod libgpiod-tools kbd mpv dosfstools e2fsprogs squashfs-tools acpid"
+                apks="alpine-base busybox openrc linux-rpi raspberrypi-bootloader raspberrypi-firmware alsa-utils alsa-lib iw wpa_supplicant dhcpcd libgpiod kbd mpv dosfstools e2fsprogs squashfs-tools acpid"
             fi
             ;;
     esac
