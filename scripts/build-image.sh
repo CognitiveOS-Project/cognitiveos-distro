@@ -91,7 +91,7 @@ if command -v docker >/dev/null 2>&1; then
         alpine:edge sh -c "
             apk add --no-cache ${MKDeps}
             cd /workspace
-            bash scripts/build-image.sh --profile '${PROFILE}' --packages '${PACKAGES_FILE}'
+            bash scripts/build-image.sh --profile '${PROFILE}'
         "
 
     echo ""
