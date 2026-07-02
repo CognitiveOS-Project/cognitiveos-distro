@@ -132,31 +132,33 @@ if command -v docker >/dev/null 2>&1; then
 
     mkdir -p "$OUTPUT_DIR"
 
+    # Write helper script to avoid complex quoting for Docker + su
+    cat > /tmp/build-cognitiveos-docker.sh << ENDSCRIPT
+set -eux
+apk add --no-cache ${MKIMAGE_DEPS}
+adduser -D builder
+git clone --depth=1 ${APORTS_GIT} ${APORTS_DIR}
+cp /workspace/scripts/mkimg.cognitiveos.sh ${APORTS_DIR}/scripts/
+cp /workspace/scripts/genapkovl-cognitiveos.sh ${APORTS_DIR}/scripts/
+chown -R builder:builder ${APORTS_DIR} /workspace/output
+su builder -p -c '
+export COGNITIVEOS_PACKAGES_FILE=/workspace/packages.${PROFILE}
+export COGNITIVEOS_OVERLAY_DIR=/workspace/overlay
+cd ${APORTS_DIR}/scripts
+./mkimage.sh \
+    --profile cognitiveos \
+    --outdir /workspace/output \
+    --arch ${PROFILE} \
+    --repository https://dl-cdn.alpinelinux.org/alpine/edge/main \
+    --repository https://dl-cdn.alpinelinux.org/alpine/edge/community \
+    --tag ${TAG}
+'
+ENDSCRIPT
+
     docker run --rm --privileged \
         -v "$SRC_DIR:/workspace" \
-        alpine:edge sh -c "
-            set -eux
-            apk add --no-cache ${MKIMAGE_DEPS}
-            adduser -D builder
-            git clone --depth=1 ${APORTS_GIT} ${APORTS_DIR}
-            cp /workspace/scripts/mkimg.cognitiveos.sh ${APORTS_DIR}/scripts/
-            cp /workspace/scripts/genapkovl-cognitiveos.sh ${APORTS_DIR}/scripts/
-            export COGNITIVEOS_PACKAGES_FILE=/workspace/packages.${PROFILE}
-            export COGNITIVEOS_OVERLAY_DIR=/workspace/overlay
-            chown -R builder:builder ${APORTS_DIR} /workspace/output
-            su builder -p -c "
-                export COGNITIVEOS_PACKAGES_FILE=/workspace/packages.${PROFILE}
-                export COGNITIVEOS_OVERLAY_DIR=/workspace/overlay
-                cd ${APORTS_DIR}/scripts
-                ./mkimage.sh \
-                    --profile cognitiveos \
-                    --outdir /workspace/output \
-                    --arch ${PROFILE} \
-                    --repository https://dl-cdn.alpinelinux.org/alpine/edge/main \
-                    --repository https://dl-cdn.alpinelinux.org/alpine/edge/community \
-                    --tag ${TAG}
-            "
-        "
+        -v /tmp/build-cognitiveos-docker.sh:/build.sh:ro \
+        alpine:edge sh /build.sh
 
     echo ""
     echo "Docker build complete. Output in ${OUTPUT_DIR}:"
