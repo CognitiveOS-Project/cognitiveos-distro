@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # build-image.sh — Build bootable CognitiveOS image (ISO or RPi) via mkimage
 #
 # Usage:
@@ -85,13 +85,13 @@ fi
 if command -v docker >/dev/null 2>&1; then
     echo "==> mkimage not found, building via Docker"
 
-    MKDeps="alpine-conf alpine-base e2fsprogs squashfs-tools dosfstools mtools"
+    MKDeps="bash alpine-conf alpine-base e2fsprogs squashfs-tools dosfstools mtools"
     docker run --rm --privileged \
         -v "${SRC_DIR}:/workspace" \
         alpine:edge sh -c "
             apk add --no-cache ${MKDeps}
             cd /workspace
-            bash scripts/build-image.sh --profile '${PROFILE}' --packages '${PACKAGES_FILE}'
+            bash scripts/build-image.sh --profile '${PROFILE}'
         "
 
     echo ""
