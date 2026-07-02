@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # build-image.sh — Build bootable CognitiveOS image (ISO or RPi) via mkimage
 #
 # Usage:

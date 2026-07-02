@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -euo pipefail
 
 BUILD_DIR="$(realpath "$(dirname "$0")/..")/build"
