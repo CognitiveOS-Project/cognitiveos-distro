@@ -19,18 +19,6 @@ OVERLAY_DIR="${SRC_DIR}/overlay"
 APORTS_DIR="/tmp/aports"
 APORTS_GIT="https://gitlab.alpinelinux.org/alpine/aports.git"
 
-# Dependencies needed to build an image with mkimage.sh:
-#   abuild        provides functions.sh sourced by mkimage.sh
-#   apk-tools     provides the apk command
-#   alpine-conf   provides setup-disk and related tools
-#   busybox       basic utilities
-#   fakeroot      needed by genapkovl for file permissions
-#   syslinux      isolinux for ISO boot on x86_64
-#   xorriso       ISO creation
-#   squashfs-tools  squashfs for initramfs
-#   mtools        EFI partition image creation
-#   grub-efi      EFI boot support
-#   git           to clone aports
 MKIMAGE_DEPS="abuild apk-tools alpine-conf busybox fakeroot syslinux xorriso squashfs-tools mtools grub-efi git"
 
 # --- arg parse ---
@@ -81,11 +69,9 @@ run_mkimage() {
 
     mkdir -p "$OUTPUT_DIR"
 
-    # Copy our custom profile and genapkovl alongside the aports scripts
     cp "$SRC_DIR/scripts/mkimg.cognitiveos.sh" "${aports_dir}/scripts/"
     cp "$SRC_DIR/scripts/genapkovl-cognitiveos.sh" "${aports_dir}/scripts/"
 
-    # Export env vars that mkimg.cognitiveos.sh and genapkovl-cognitiveos.sh read
     export COGNITIVEOS_PACKAGES_FILE="$PACKAGES_FILE"
     export COGNITIVEOS_OVERLAY_DIR="$OVERLAY_DIR"
 
