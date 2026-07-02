@@ -148,7 +148,8 @@ git clone --depth=1 ${APORTS_GIT} ${APORTS_DIR}
 cp /workspace/scripts/mkimg.cognitiveos.sh ${APORTS_DIR}/scripts/
 cp /workspace/scripts/genapkovl-cognitiveos.sh ${APORTS_DIR}/scripts/
 chown -R builder:builder ${APORTS_DIR} /workspace/output
-su builder -p -c '
+su builder -p -c "
+export HOME=/home/builder
 export COGNITIVEOS_PACKAGES_FILE=/workspace/packages.${PROFILE}
 export COGNITIVEOS_OVERLAY_DIR=/workspace/overlay
 cd ${APORTS_DIR}/scripts
@@ -160,7 +161,7 @@ abuild-keygen -a -n
     --repository https://dl-cdn.alpinelinux.org/alpine/edge/main \
     --repository https://dl-cdn.alpinelinux.org/alpine/edge/community \
     --tag ${TAG}
-'
+"
 ENDSCRIPT
 
     docker run --rm --privileged \
