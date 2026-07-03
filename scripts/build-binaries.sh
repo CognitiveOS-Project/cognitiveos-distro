@@ -43,7 +43,7 @@ if [ -f "${LLAMA_CPP_DIR}/CMakeLists.txt" ]; then
     cmake -B build -DLLAMA_NO_ACCELERATE=1 -DLLAMA_STATIC=1 -DLLAMA_NATIVE=0 \
       -DBUILD_SHARED_LIBS=0 -DLLAMA_BUILD_TESTS=0 \
       -DLLAMA_BUILD_EXAMPLES=0 -DLLAMA_BUILD_SERVER=0
-    cmake --build build --config Release -j$(nproc)
+    cmake --build build --config Release -j"$(nproc)"
     echo "  -> llama.cpp built"
 else
     echo "  WARNING: llama.cpp not found at ${LLAMA_CPP_DIR}, CGo builds will fail"
