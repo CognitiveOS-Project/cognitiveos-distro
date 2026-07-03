@@ -54,22 +54,15 @@ if [ -z "${LLAMA_LIB}" ]; then
 fi
 echo "  -> Found libllama.a at ${LLAMA_LIB}"
 
-LLAMA_CPP_LIB_DIR=$(dirname "${LLAMA_LIB}")
-LLAMA_CPP_INC="${LLAMA_CPP_DIR}/ggml/include"
+# Symlink so bridge.go's -L.../build can find it
+ln -sf "$(realpath "${LLAMA_LIB}")" build/libllama.a
 
+LLAMA_CPP_INC="${LLAMA_CPP_DIR}/ggml/include"
 CGO_LLAMA_LDFLAGS=""
-LIBS=$(find build -name "lib*.a" -type f)
-for lib in ${LIBS}; do
+for lib in $(find build -name "libggml*.a" -type f); do
     libdir="${LLAMA_CPP_DIR}/$(dirname "${lib}")"
     libname=$(basename "${lib}" .a | sed 's/^lib//')
-    case " ${CGO_LLAMA_LDFLAGS} " in
-        *" -L${libdir} "*) ;;
-        *) CGO_LLAMA_LDFLAGS="${CGO_LLAMA_LDFLAGS} -L${libdir}" ;;
-    esac
-    case " ${CGO_LLAMA_LDFLAGS} " in
-        *" -l${libname} "*) ;;
-        *) CGO_LLAMA_LDFLAGS="${CGO_LLAMA_LDFLAGS} -l${libname}" ;;
-    esac
+    CGO_LLAMA_LDFLAGS="${CGO_LLAMA_LDFLAGS} -L${libdir} -l${libname}"
 done
 
 echo "Building inference (coginfer)..."
