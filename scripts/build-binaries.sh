@@ -60,7 +60,7 @@ LLAMA_CPP_INC="${LLAMA_CPP_DIR}/ggml/include"
 CGO_LLAMA_LDFLAGS=""
 LIBS=$(find build -name "lib*.a" -type f)
 for lib in ${LIBS}; do
-    libdir=$(dirname "${lib}")
+    libdir="${LLAMA_CPP_DIR}/$(dirname "${lib}")"
     libname=$(basename "${lib}" .a | sed 's/^lib//')
     case " ${CGO_LLAMA_LDFLAGS} " in
         *" -L${libdir} "*) ;;
