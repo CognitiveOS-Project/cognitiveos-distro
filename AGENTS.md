@@ -19,13 +19,12 @@ Build scripts and configurations for producing a bootable CognitiveOS image base
 - CI needs `CGO_ENABLED=0` to build with mock backend (Ubuntu defaults to `CGO_ENABLED=1`).
 - `golangci-lint-action` v6 uses deprecated Node 20 → bump to v9.
 
-### Pending Workarounds in `build-binaries.sh`
-Until inference PR #27 merges, these accumulated workarounds compensate for the bridge.go bugs:
-- llama.cpp clone (no submodule)
-- `CMAKE_ARCHIVE_OUTPUT_DIRECTORY` to put `.a` in `build/` instead of `build/src/`
-- `CGO_CFLAGS` with `-I.../ggml/include`
-- `CGO_LDFLAGS` with symlink/find tricks for library path
-- Remove all workarounds after PR #27 merges; bridge.go should have correct flags.
+### Remaining Workarounds in `build-binaries.sh`
+bridge.go now has correct `-lllama`, `-Lbuild/src`, and `-Iggml/include` flags.
+Remaining workaround: `CGO_LDFLAGS` with ggml library discovery (`find build -name "libggml*.a"` → `-lggml*` flags).
+bridge.go links only `-lllama`; ggml sub-libraries must be discovered dynamically since their
+exact names vary by build config. If llama.cpp cmake ever produces a monolithic `libllama.a`
+that bundles ggml, this loop can be removed too.
 
 ### Workflow Notes
 - `libgpiod-tools` does not exist in Alpine edge — removed from all package lists.
