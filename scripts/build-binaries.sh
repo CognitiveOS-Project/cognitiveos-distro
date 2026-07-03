@@ -5,7 +5,7 @@ BUILD_DIR="$(realpath "$(dirname "$0")/..")/build"
 BIN_DIR="${BUILD_DIR}/bin"
 SRC_DIR="$(realpath "$(dirname "$0")/..")"
 
-GO="/tmp/go/bin/go"
+GO="$(command -v go 2>/dev/null || echo "/tmp/go/bin/go")"
 
 REPOS="cpm cognitiveosd cli inference core-mcp-bridges"
 
