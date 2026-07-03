@@ -44,25 +44,22 @@ fi
 cd "${LLAMA_CPP_DIR}"
 cmake -B build -DLLAMA_NO_ACCELERATE=1 -DLLAMA_STATIC=1 -DLLAMA_NATIVE=0 \
   -DBUILD_SHARED_LIBS=0 -DLLAMA_BUILD_TESTS=0 \
-  -DLLAMA_BUILD_EXAMPLES=0 -DLLAMA_BUILD_SERVER=0
+  -DLLAMA_BUILD_EXAMPLES=0 -DLLAMA_BUILD_SERVER=0 \
+  -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY="${LLAMA_CPP_DIR}/build"
 cmake --build build --config Release --target llama -j"$(nproc)"
 echo "  -> llama.cpp built"
-LLAMA_LIB=$(find build -name "libllama.a" -type f | head -1)
+LLAMA_LIB=$(find build -name "libllama.a" -type f)
 if [ -z "${LLAMA_LIB}" ]; then
     echo "  ERROR: libllama.a not found in build/"
     exit 1
 fi
-echo "  -> Found libllama.a at ${LLAMA_LIB}"
-
-# Symlink so bridge.go's -L.../build can find it
-ln -sf "$(realpath "${LLAMA_LIB}")" build/libllama.a
+echo "  -> Found libraries: ${LLAMA_LIB}"
 
 LLAMA_CPP_INC="${LLAMA_CPP_DIR}/ggml/include"
 CGO_LLAMA_LDFLAGS=""
 for lib in $(find build -name "libggml*.a" -type f); do
-    libdir="${LLAMA_CPP_DIR}/$(dirname "${lib}")"
     libname=$(basename "${lib}" .a | sed 's/^lib//')
-    CGO_LLAMA_LDFLAGS="${CGO_LLAMA_LDFLAGS} -L${libdir} -l${libname}"
+    CGO_LLAMA_LDFLAGS="${CGO_LLAMA_LDFLAGS} -l${libname}"
 done
 
 echo "Building inference (coginfer)..."
