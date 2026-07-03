@@ -44,9 +44,8 @@ fi
 cd "${LLAMA_CPP_DIR}"
 cmake -B build -DLLAMA_NO_ACCELERATE=1 -DLLAMA_STATIC=1 -DLLAMA_NATIVE=0 \
   -DBUILD_SHARED_LIBS=0 -DLLAMA_BUILD_TESTS=0 \
-  -DLLAMA_BUILD_EXAMPLES=0 -DLLAMA_BUILD_SERVER=0 \
-  -DLLAMA_BUILD_APPS=OFF
-cmake --build build --config Release -j"$(nproc)"
+  -DLLAMA_BUILD_EXAMPLES=0 -DLLAMA_BUILD_SERVER=0
+cmake --build build --config Release --target llama -j"$(nproc)"
 echo "  -> llama.cpp built"
 
 echo "Building inference (coginfer)..."
