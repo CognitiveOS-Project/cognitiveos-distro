@@ -55,10 +55,10 @@ fi
 echo "  -> Found libraries: ${LLAMA_LIB}"
 
 CGO_LLAMA_LDFLAGS=""
-for lib in $(find build -name "libggml*.a" -type f); do
+while IFS= read -r lib; do
     libname=$(basename "${lib}" .a | sed 's/^lib//')
     CGO_LLAMA_LDFLAGS="${CGO_LLAMA_LDFLAGS} -l${libname}"
-done
+done < <(find build -name "libggml*.a" -type f)
 
 echo "Building inference (coginfer)..."
 cd "${SRC_DIR}/../inference"
