@@ -11,10 +11,10 @@ RUN for repo in cpm cognitiveosd cli inference core-mcp-bridges; do \
 
 RUN mkdir -p /out/bin/bridges
 
-RUN cd /src/cpm && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cpm .
-RUN cd /src/cognitiveosd && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cognitiveosd .
-RUN cd /src/cli && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cognitiveos-cli .
-RUN cd /src/inference && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cognitiveos-inference .
+RUN cd /src/cpm && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cpm ./cmd/cpm
+RUN cd /src/cognitiveosd && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cognitiveosd ./cmd/cognitiveosd
+RUN cd /src/cli && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cognitiveos-cli ./cmd/cognitiveos-cli
+RUN cd /src/inference && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cognitiveos-inference ./cmd/coginfer
 
 WORKDIR /src/core-mcp-bridges
 RUN for dir in */; do \
