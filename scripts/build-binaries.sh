@@ -5,7 +5,7 @@ BUILD_DIR="$(realpath "$(dirname "$0")/..")/build"
 BIN_DIR="${BUILD_DIR}/bin"
 SRC_DIR="$(realpath "$(dirname "$0")/..")"
 
-GO="/tmp/go/bin/go"
+GO="$(command -v go 2>/dev/null || echo "/tmp/go/bin/go")"
 
 REPOS="cpm cognitiveosd cli inference core-mcp-bridges"
 
@@ -36,9 +36,9 @@ echo "  -> cognitiveos-cli built"
 
 echo "Building llama.cpp (vendored in inference)..."
 LLAMA_CPP_DIR="${SRC_DIR}/../inference/vendor/llama.cpp"
+cd "${SRC_DIR}/../inference"
+git submodule update --init --recursive 2>/dev/null || echo "  WARNING: submodule init failed, CGo builds may fail"
 if [ -f "${LLAMA_CPP_DIR}/CMakeLists.txt" ]; then
-    cd "${SRC_DIR}/../inference"
-    git submodule update --init --recursive 2>/dev/null || echo "  WARNING: submodule init failed, build may fail if llama.cpp not present"
     cd "${LLAMA_CPP_DIR}"
     cmake -B build -DLLAMA_NO_ACCELERATE=1 -DLLAMA_STATIC=1 -DLLAMA_NATIVE=0 \
       -DBUILD_SHARED_LIBS=0 -DLLAMA_BUILD_TESTS=0 \
