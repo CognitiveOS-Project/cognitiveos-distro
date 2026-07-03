@@ -48,14 +48,15 @@ cmake -B build -DLLAMA_NO_ACCELERATE=1 -DLLAMA_STATIC=1 -DLLAMA_NATIVE=0 \
 cmake --build build --config Release --target llama -j"$(nproc)"
 echo "  -> llama.cpp built"
 
+LLAMA_CPP_INC="${LLAMA_CPP_DIR}/ggml/include"
 echo "Building inference (coginfer)..."
 cd "${SRC_DIR}/../inference"
-CGO_ENABLED=1 GOOS=linux ${GO} build -tags=cgo -ldflags="-s -w" -o "${BIN_DIR}/cognitiveos-inference" ./cmd/coginfer
+CGO_ENABLED=1 CGO_CFLAGS="-I${LLAMA_CPP_INC}" GOOS=linux ${GO} build -tags=cgo -ldflags="-s -w" -o "${BIN_DIR}/cognitiveos-inference" ./cmd/coginfer
 echo "  -> cognitiveos-inference built"
 
 echo "Building cograw..."
 cd "${SRC_DIR}/../inference"
-CGO_ENABLED=1 GOOS=linux ${GO} build -tags=cgo -ldflags="-s -w" -o "${BIN_DIR}/cograw" ./cmd/cograw
+CGO_ENABLED=1 CGO_CFLAGS="-I${LLAMA_CPP_INC}" GOOS=linux ${GO} build -tags=cgo -ldflags="-s -w" -o "${BIN_DIR}/cograw" ./cmd/cograw
 echo "  -> cograw built"
 
 echo "Building core-mcp-bridges..."
