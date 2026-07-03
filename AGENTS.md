@@ -2,6 +2,37 @@
 
 Build scripts and configurations for producing a bootable CognitiveOS image based on Alpine Linux.
 
+## Critical Findings
+
+### Repository Setup
+- **Always use `gh repo clone`** — plain `git clone` may resolve SSH URLs incorrectly,
+  resulting in remotes pointing to wrong repositories.
+- All repos use SSH (`git@github.com:CognitiveOS-Project/*`), never HTTPS.
+
+### Inference Bridge Fix (root cause of Release failures)
+`CognitiveOS-Project/inference/internal/llm/bridge.go` line 6:
+- `-llama` → `-lllama` (cmake target `llama` → `libllama.a`, missing `l`)
+- Missing `-L.../build/src` (modern llama.cpp puts static archives in `build/src/`)
+- Missing `-I.../ggml/include` (llama.h includes ggml headers from there)
+- Inference has no `.gitmodules` file — `vendor/llama.cpp` is NOT a git submodule.
+  Must clone llama.cpp explicitly in `build-binaries.sh`.
+- CI needs `CGO_ENABLED=0` to build with mock backend (Ubuntu defaults to `CGO_ENABLED=1`).
+- `golangci-lint-action` v6 uses deprecated Node 20 → bump to v9.
+
+### Pending Workarounds in `build-binaries.sh`
+Until inference PR #27 merges, these accumulated workarounds compensate for the bridge.go bugs:
+- llama.cpp clone (no submodule)
+- `CMAKE_ARCHIVE_OUTPUT_DIRECTORY` to put `.a` in `build/` instead of `build/src/`
+- `CGO_CFLAGS` with `-I.../ggml/include`
+- `CGO_LDFLAGS` with symlink/find tricks for library path
+- Remove all workarounds after PR #27 merges; bridge.go should have correct flags.
+
+### Workflow Notes
+- `libgpiod-tools` does not exist in Alpine edge — removed from all package lists.
+- `build-binaries.sh`, `build-image.sh`, `build-overlay.sh`, `publish-cgp.sh`,
+  `sign.sh`, `build-distro-tarball.sh` all use `#!/bin/bash` (not `#!/bin/sh`).
+- `nproc` quoting: use `$(nproc)`, not `"$(nproc)"` or `nproc` alone (SC2046).
+
 ## Build Output
 
 - Bootable ISO image for x86_64
