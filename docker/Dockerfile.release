@@ -1,0 +1,45 @@
+# Stage 1: Build Go binaries
+FROM golang:1.25-alpine AS builder
+
+RUN apk add --no-cache git ca-certificates
+
+WORKDIR /src
+
+RUN for repo in cpm cognitiveosd cli inference core-mcp-bridges; do \
+        git clone --depth=1 "https://github.com/CognitiveOS-Project/${repo}.git" "${repo}"; \
+    done
+
+RUN mkdir -p /out/bin/bridges
+
+RUN cd /src/cpm && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cpm ./cmd/cpm
+RUN cd /src/cognitiveosd && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cognitiveosd ./cmd/cognitiveosd
+RUN cd /src/cli && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cognitiveos-cli ./cmd/cognitiveos-cli
+RUN cd /src/inference && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cognitiveos-inference ./cmd/coginfer
+
+WORKDIR /src/core-mcp-bridges
+RUN for dir in */; do \
+        bridge=$(basename "${dir}"); \
+        if [ -f "${dir}/go.mod" ] || [ -f "${dir}/main.go" ]; then \
+            CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o "/out/bin/bridges/${bridge}" "./${dir}" || true; \
+        fi \
+    done
+
+# Stage 2: Minimal runtime image
+FROM alpine:edge
+
+RUN apk add --no-cache \
+    alpine-base busybox openrc linux-lts \
+    alsa-utils alsa-lib \
+    iw wpa_supplicant dhcpcd \
+    libgpiod kbd \
+    mpv \
+    dosfstools e2fsprogs squashfs-tools \
+    acpid
+
+COPY --from=builder /out/bin/ /usr/local/bin/
+COPY overlay/ /
+
+RUN mkdir -p /cognitiveos/run /cognitiveos/patches /cognitiveos/data /cognitiveos/packages
+RUN chmod 755 /usr/local/bin/*
+
+ENTRYPOINT ["/sbin/init"]

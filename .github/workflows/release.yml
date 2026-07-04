@@ -1,0 +1,118 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 0.4.0)'
+        required: true
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+
+      - name: Build binaries and overlay
+        run: |
+          chmod +x scripts/*.sh
+          bash scripts/build-binaries.sh
+          bash scripts/build-overlay.sh
+
+      - name: Build distro tarball
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          bash scripts/build-distro-tarball.sh "$VERSION" "x86_64"
+
+      - name: Build ISO image (x86_64)
+        run: |
+          mkdir -p output
+          bash scripts/build-image.sh --profile x86_64
+
+      - name: Build RPi image (aarch64)
+        run: |
+          mkdir -p output
+          bash scripts/build-image.sh --profile aarch64
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: distro-artifacts
+          path: output/
+
+      - name: Publish .cgp packages to registry
+        env:
+          REGISTRY_URL: ${{ secrets.REGISTRY_URL || 'https://registry-us-all-distros-official.cognitive-os.org/v1' }}
+          REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+        run: |
+          if [ -n "${REGISTRY_TOKEN}" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+            for bin in build/bin/cpm build/bin/cognitiveosd build/bin/cognitiveos-cli build/bin/cognitiveos-inference; do
+              name=$(basename "$bin")
+              bash scripts/publish-cgp.sh \
+                --name "$name" \
+                --version "$VERSION" \
+                --binary "$bin" \
+                --description "CognitiveOS $name v$VERSION" \
+                --author "CognitiveOS Project" \
+                --repo "https://github.com/CognitiveOS-Project/${name}" \
+                --issues "https://github.com/CognitiveOS-Project/${name}/issues"
+            done
+          else
+            echo "Skipping registry publish: REGISTRY_TOKEN not set"
+          fi
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: distro-artifacts
+          path: output/
+
+      - name: Generate checksums
+        working-directory: output
+        run: sha256sum -- * > SHA256SUMS
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: CognitiveOS Distro ${{ github.ref_name }}
+          body: |
+            ## CognitiveOS Distribution ${{ github.ref_name }}
+
+            ### Artifacts
+            - `cognitiveos-distro-*.tar.gz` — portable distro tarball (extract on Alpine, run `make iso`/`make rpi` to build bootable images)
+            - `*.iso` — bootable x86_64 ISO image
+            - `*.img` — aarch64 Raspberry Pi image
+            - `SHA256SUMS` — integrity checksums
+
+            ### Docker Image
+            Also published to `ghcr.io/CognitiveOS-Project/cognitiveos-distro:${{ github.ref_name }}`
+            ```
+            docker pull ghcr.io/CognitiveOS-Project/cognitiveos-distro:${{ github.ref_name }}
+            ```
+
+            ### Registry Packages
+            Core components published as .cgp packages to the official CognitiveOS registry.
+            Install via:
+            ```
+            cpm install cpm
+            cpm install cognitiveosd
+            cpm install cognitiveos-cli
+            cpm install cognitiveos-inference
+            ```
+          files: output/*

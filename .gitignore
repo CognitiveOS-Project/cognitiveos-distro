@@ -18,3 +18,7 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+
+# Editor backups & trailing-space typos
+* 2.*
+* 2/
