@@ -26,4 +26,4 @@ volume = 75
 [display]
 framebuffer_device = "/dev/fb0"
 media_player = "mpv"
-image_viewer = "fbv"
+image_viewer = "mpv"
