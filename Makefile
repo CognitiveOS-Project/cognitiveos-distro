@@ -16,13 +16,13 @@ GO := /tmp/go/bin/go
 
 all: iso rpi checksums sign
 
-iso: deps
+iso: install-local
 	@echo "==> Building x86_64 ISO..."
-	@bash $(SCRIPTS_DIR)/build-iso.sh
+	@bash $(SCRIPTS_DIR)/build-image.sh --profile x86_64
 
-rpi: deps
+rpi: install-local
 	@echo "==> Building aarch64 RPi image..."
-	@bash $(SCRIPTS_DIR)/build-rpi.sh
+	@bash $(SCRIPTS_DIR)/build-image.sh --profile aarch64
 
 clean:
 	@echo "==> Cleaning build artifacts..."
@@ -94,7 +94,6 @@ release: distro-tarball docker-release
 
 deps:
 	@echo "==> Checking dependencies..."
-	@command -v mkimage >/dev/null 2>&1 || echo "  WARNING: mkimage not found (install alpine-conf)"
 	@command -v docker >/dev/null 2>&1 || echo "  WARNING: docker not found"
-	@command -v $(GO) >/dev/null 2>&1 || echo "  WARNING: $(GO) not found"
+	@command -v $(GO) >/dev/null 2>&1 || echo "  WARNING: $(GO) not found (run: scripts/build-binaries.sh)"
 	@echo "  done."
