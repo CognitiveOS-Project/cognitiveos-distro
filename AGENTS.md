@@ -2,6 +2,36 @@
 
 Build scripts and configurations for producing a bootable CognitiveOS image based on Alpine Linux.
 
+## Critical Findings
+
+### Repository Setup
+- **Always use `gh repo clone`** — plain `git clone` may resolve SSH URLs incorrectly,
+  resulting in remotes pointing to wrong repositories.
+- All repos use SSH (`git@github.com:CognitiveOS-Project/*`), never HTTPS.
+
+### Inference Bridge Fix (root cause of Release failures)
+`CognitiveOS-Project/inference/internal/llm/bridge.go` line 6:
+- `-llama` → `-lllama` (cmake target `llama` → `libllama.a`, missing `l`)
+- Missing `-L.../build/src` (modern llama.cpp puts static archives in `build/src/`)
+- Missing `-I.../ggml/include` (llama.h includes ggml headers from there)
+- Inference has no `.gitmodules` file — `vendor/llama.cpp` is NOT a git submodule.
+  Must clone llama.cpp explicitly in `build-binaries.sh`.
+- CI needs `CGO_ENABLED=0` to build with mock backend (Ubuntu defaults to `CGO_ENABLED=1`).
+- `golangci-lint-action` v6 uses deprecated Node 20 → bump to v9.
+
+### Remaining Workarounds in `build-binaries.sh`
+bridge.go now has correct `-lllama`, `-Lbuild/src`, and `-Iggml/include` flags.
+Remaining workaround: `CGO_LDFLAGS` with ggml library discovery (`find build -name "libggml*.a"` → `-lggml*` flags).
+bridge.go links only `-lllama`; ggml sub-libraries must be discovered dynamically since their
+exact names vary by build config. If llama.cpp cmake ever produces a monolithic `libllama.a`
+that bundles ggml, this loop can be removed too.
+
+### Workflow Notes
+- `libgpiod-tools` does not exist in Alpine edge — removed from all package lists.
+- `build-binaries.sh`, `build-image.sh`, `build-overlay.sh`, `publish-cgp.sh`,
+  `sign.sh`, `build-distro-tarball.sh` all use `#!/bin/bash` (not `#!/bin/sh`).
+- `nproc` quoting: use `$(nproc)`, not `"$(nproc)"` or `nproc` alone (SC2046).
+
 ## Build Output
 
 - Bootable ISO image for x86_64
