@@ -57,7 +57,7 @@ jobs:
         run: |
           for script in scripts/*.sh; do
             echo "Checking $script..."
-            sh -n "$script"
+            bash -n "$script"
           done
           echo "All scripts pass syntax check"
 
