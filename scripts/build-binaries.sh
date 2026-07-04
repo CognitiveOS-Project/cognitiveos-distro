@@ -44,7 +44,8 @@ fi
 cd "${LLAMA_CPP_DIR}"
 cmake -B build -DLLAMA_NO_ACCELERATE=1 -DLLAMA_STATIC=1 -DLLAMA_NATIVE=0 \
   -DBUILD_SHARED_LIBS=0 -DLLAMA_BUILD_TESTS=0 \
-  -DLLAMA_BUILD_EXAMPLES=0 -DLLAMA_BUILD_SERVER=0
+  -DLLAMA_BUILD_EXAMPLES=0 -DLLAMA_BUILD_SERVER=0 \
+  -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY="${LLAMA_CPP_DIR}/build"
 cmake --build build --config Release --target llama -j"$(nproc)"
 echo "  -> llama.cpp built"
 LLAMA_LIB=$(find build -name "libllama.a" -type f)
@@ -54,20 +55,21 @@ if [ -z "${LLAMA_LIB}" ]; then
 fi
 echo "  -> Found libraries: ${LLAMA_LIB}"
 
+LLAMA_CPP_INC="${LLAMA_CPP_DIR}/ggml/include"
 CGO_LLAMA_LDFLAGS=""
-while IFS= read -r lib; do
+for lib in $(find build -name "libggml*.a" -type f); do
     libname=$(basename "${lib}" .a | sed 's/^lib//')
     CGO_LLAMA_LDFLAGS="${CGO_LLAMA_LDFLAGS} -l${libname}"
-done < <(find build -name "libggml*.a" -type f)
+done
 
 echo "Building inference (coginfer)..."
 cd "${SRC_DIR}/../inference"
-CGO_ENABLED=1 CGO_LDFLAGS="${CGO_LLAMA_LDFLAGS}" GOOS=linux ${GO} build -tags=cgo -ldflags="-s -w" -o "${BIN_DIR}/cognitiveos-inference" ./cmd/coginfer
+CGO_ENABLED=1 CGO_CFLAGS="-I${LLAMA_CPP_INC}" CGO_LDFLAGS="${CGO_LLAMA_LDFLAGS}" GOOS=linux ${GO} build -tags=cgo -ldflags="-s -w" -o "${BIN_DIR}/cognitiveos-inference" ./cmd/coginfer
 echo "  -> cognitiveos-inference built"
 
 echo "Building cograw..."
 cd "${SRC_DIR}/../inference"
-CGO_ENABLED=1 CGO_LDFLAGS="${CGO_LLAMA_LDFLAGS}" GOOS=linux ${GO} build -tags=cgo -ldflags="-s -w" -o "${BIN_DIR}/cograw" ./cmd/cograw
+CGO_ENABLED=1 CGO_CFLAGS="-I${LLAMA_CPP_INC}" CGO_LDFLAGS="${CGO_LLAMA_LDFLAGS}" GOOS=linux ${GO} build -tags=cgo -ldflags="-s -w" -o "${BIN_DIR}/cograw" ./cmd/cograw
 echo "  -> cograw built"
 
 echo "Building core-mcp-bridges..."
