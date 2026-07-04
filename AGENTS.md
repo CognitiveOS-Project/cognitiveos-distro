@@ -57,8 +57,7 @@ Build scripts and configurations for producing a bootable CognitiveOS image base
 ├── scripts/
 │   ├── build-binaries.sh     # Compile all Go projects
 │   ├── build-overlay.sh      # Assemble overlay from built binaries
-│   ├── build-iso.sh          # Run mkimage for x86_64
-│   ├── build-rpi.sh          # Run mkimage for aarch64
+│   ├── build-image.sh        # Run mkimage with Docker fallback (--profile x86_64|aarch64)
 │   ├── build-distro-tarball.sh # Portable distro archive
 │   ├── publish-cgp.sh        # Build .cgp from binary + publish to registry
 │   └── sign.sh               # Checksums and GPG signatures

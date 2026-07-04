@@ -22,20 +22,32 @@ jobs:
         with:
           go-version: "1.24"
 
-      - name: Build distro tarball
+      - name: Build binaries and overlay
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          mkdir -p build/bin
           chmod +x scripts/*.sh
           bash scripts/build-binaries.sh
           bash scripts/build-overlay.sh
+
+      - name: Build distro tarball
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
           bash scripts/build-distro-tarball.sh "$VERSION" "x86_64"
 
-      - name: Upload distro tarball
+      - name: Build ISO image (x86_64)
+        run: |
+          mkdir -p output
+          bash scripts/build-image.sh --profile x86_64
+
+      - name: Build RPi image (aarch64)
+        run: |
+          mkdir -p output
+          bash scripts/build-image.sh --profile aarch64
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: distro-tarball
-          path: output/cognitiveos-distro-*.tar.gz
+          name: distro-artifacts
+          path: output/
 
       - name: Publish .cgp packages to registry
         env:
@@ -68,7 +80,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: distro-tarball
+          name: distro-artifacts
           path: output/
 
       - name: Generate checksums
@@ -84,6 +96,8 @@ jobs:
 
             ### Artifacts
             - `cognitiveos-distro-*.tar.gz` — portable distro tarball (extract on Alpine, run `make iso`/`make rpi` to build bootable images)
+            - `*.iso` — bootable x86_64 ISO image
+            - `*.img` — aarch64 Raspberry Pi image
             - `SHA256SUMS` — integrity checksums
 
             ### Docker Image
@@ -102,4 +116,3 @@ jobs:
             cpm install cognitiveos-inference
             ```
           files: output/*
-          fail_on_unmatched_files: true

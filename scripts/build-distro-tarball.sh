@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -euo pipefail
 
 SRC_DIR="$(realpath "$(dirname "$0")/..")"
@@ -45,8 +45,7 @@ EOF
 
 # Copy build scripts reference
 mkdir -p "${WORKDIR}/cognitiveos-distro-${VERSION}/scripts"
-cp "${SRC_DIR}/scripts/build-iso.sh" "${WORKDIR}/cognitiveos-distro-${VERSION}/scripts/"
-cp "${SRC_DIR}/scripts/build-rpi.sh" "${WORKDIR}/cognitiveos-distro-${VERSION}/scripts/"
+cp "${SRC_DIR}/scripts/build-image.sh" "${WORKDIR}/cognitiveos-distro-${VERSION}/scripts/"
 cp "${SRC_DIR}/scripts/sign.sh" "${WORKDIR}/cognitiveos-distro-${VERSION}/scripts/"
 
 cd "${WORKDIR}"
