@@ -60,3 +60,14 @@ jobs:
             sh -n "$script"
           done
           echo "All scripts pass syntax check"
+
+  image-build:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ISO via Docker
+        run: |
+          mkdir -p output
+          bash scripts/build-image.sh --profile x86_64
