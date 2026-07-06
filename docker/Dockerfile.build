@@ -43,6 +43,7 @@ RUN LLAMA_DIR=/src/inference/vendor/llama.cpp && \
         libname=$(basename "${lib}" .a | sed 's/^lib//'); \
         CGO_LD="${CGO_LD} -l${libname}"; \
     done && \
+    CGO_LD="${CGO_LD} -lgomp" && \
     cd /src/inference && \
     CGO_ENABLED=1 CGO_CFLAGS="-I${LLAMA_INC}" CGO_LDFLAGS="${CGO_LD}" GOOS=linux go build -tags=cgo -ldflags="-s -w" -o /out/bin/cognitiveos-inference ./cmd/coginfer
 
@@ -54,6 +55,7 @@ RUN LLAMA_DIR=/src/inference/vendor/llama.cpp && \
         libname=$(basename "${lib}" .a | sed 's/^lib//'); \
         CGO_LD="${CGO_LD} -l${libname}"; \
     done && \
+    CGO_LD="${CGO_LD} -lgomp" && \
     cd /src/inference && \
     CGO_ENABLED=1 CGO_CFLAGS="-I${LLAMA_INC}" CGO_LDFLAGS="${CGO_LD}" GOOS=linux go build -tags=cgo -ldflags="-s -w" -o /out/bin/cograw ./cmd/cograw
 

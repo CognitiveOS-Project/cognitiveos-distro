@@ -67,9 +67,10 @@ CGO_LLAMA_LDFLAGS=""
 while IFS= read -r lib; do
     libname=$(basename "${lib}" .a | sed 's/^lib//')
     CGO_LLAMA_LDFLAGS="${CGO_LLAMA_LDFLAGS} -l${libname}"
-done <<EOF
+  done <<EOF
 $(find build -name "libggml*.a" -type f)
 EOF
+CGO_LLAMA_LDFLAGS="${CGO_LLAMA_LDFLAGS} -lgomp"
 
 echo "Building inference (coginfer)..."
 cd "${SRC_DIR}/../inference"
