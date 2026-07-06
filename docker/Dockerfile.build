@@ -15,29 +15,47 @@ RUN for repo in cpm cognitiveosd cli inference core-mcp-bridges; do \
 
 # Build llama.cpp (vendored in inference repo)
 RUN cd /src/inference && \
-    git submodule update --init --recursive && \
+    mkdir -p vendor && \
+    git clone --depth=1 https://github.com/ggerganov/llama.cpp.git vendor/llama.cpp && \
     cd vendor/llama.cpp && \
     cmake -B build -DLLAMA_NO_ACCELERATE=1 -DLLAMA_STATIC=1 -DLLAMA_NATIVE=0 \
       -DBUILD_SHARED_LIBS=0 -DLLAMA_BUILD_TESTS=0 \
-      -DLLAMA_BUILD_EXAMPLES=0 -DLLAMA_BUILD_SERVER=0 && \
-    cmake --build build --config Release -j$(nproc)
+      -DLLAMA_BUILD_EXAMPLES=0 -DLLAMA_BUILD_SERVER=0 \
+      -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY="$PWD/build" && \
+    cmake --build build --config Release --target llama -j$(nproc)
 
 RUN mkdir -p /out/bin/bridges
 
 # Build cpm
-RUN cd /src/cpm && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cpm .
+RUN cd /src/cpm && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cpm ./cmd/cpm
 
 # Build cognitiveosd
-RUN cd /src/cognitiveosd && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cognitiveosd .
+RUN cd /src/cognitiveosd && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cognitiveosd ./cmd/cognitiveosd
 
 # Build cli
-RUN cd /src/cli && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cognitiveos-cli .
+RUN cd /src/cli && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/bin/cognitiveos-cli ./cmd/cognitiveos-cli
 
 # Build inference (coginfer) — with CGo for llama.cpp
-RUN cd /src/inference && CGO_ENABLED=1 GOOS=linux go build -tags=cgo -ldflags="-s -w" -o /out/bin/cognitiveos-inference ./cmd/coginfer
+RUN LLAMA_DIR=/src/inference/vendor/llama.cpp && \
+    LLAMA_INC="${LLAMA_DIR}/ggml/include" && \
+    CGO_LD="" && \
+    for lib in $(find "${LLAMA_DIR}/build" -name "libggml*.a" -type f); do \
+        libname=$(basename "${lib}" .a | sed 's/^lib//'); \
+        CGO_LD="${CGO_LD} -l${libname}"; \
+    done && \
+    cd /src/inference && \
+    CGO_ENABLED=1 CGO_CFLAGS="-I${LLAMA_INC}" CGO_LDFLAGS="${CGO_LD}" GOOS=linux go build -tags=cgo -ldflags="-s -w" -o /out/bin/cognitiveos-inference ./cmd/coginfer
 
 # Build cograw — with CGo for llama.cpp
-RUN cd /src/inference && CGO_ENABLED=1 GOOS=linux go build -tags=cgo -ldflags="-s -w" -o /out/bin/cograw ./cmd/cograw
+RUN LLAMA_DIR=/src/inference/vendor/llama.cpp && \
+    LLAMA_INC="${LLAMA_DIR}/ggml/include" && \
+    CGO_LD="" && \
+    for lib in $(find "${LLAMA_DIR}/build" -name "libggml*.a" -type f); do \
+        libname=$(basename "${lib}" .a | sed 's/^lib//'); \
+        CGO_LD="${CGO_LD} -l${libname}"; \
+    done && \
+    cd /src/inference && \
+    CGO_ENABLED=1 CGO_CFLAGS="-I${LLAMA_INC}" CGO_LDFLAGS="${CGO_LD}" GOOS=linux go build -tags=cgo -ldflags="-s -w" -o /out/bin/cograw ./cmd/cograw
 
 # Build core-mcp-bridges
 WORKDIR /src/core-mcp-bridges
@@ -62,7 +80,6 @@ RUN apk add --no-cache \
     wpa_supplicant \
     dhcpcd \
     libgpiod \
-    libgpiod-tools \
     kbd \
     mpv \
     dosfstools \

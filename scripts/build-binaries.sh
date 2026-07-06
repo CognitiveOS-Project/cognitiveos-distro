@@ -1,6 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
+# ── Bootstrap: install build dependencies on Alpine Linux ──
+if [ -f /etc/alpine-release ]; then
+  echo "Alpine Linux detected — installing build dependencies..."
+  apk add --no-cache cmake build-base gcc g++ musl-dev git ca-certificates 2>&1
+  echo "  done."
+fi
+
 BUILD_DIR="$(realpath "$(dirname "$0")/..")/build"
 BIN_DIR="${BUILD_DIR}/bin"
 SRC_DIR="$(realpath "$(dirname "$0")/..")"
