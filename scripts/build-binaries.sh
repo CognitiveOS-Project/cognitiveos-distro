@@ -1,6 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
+# ── Bootstrap: install build dependencies on Alpine Linux ──
+if [ -f /etc/alpine-release ]; then
+  echo "Alpine Linux detected — installing build dependencies..."
+  apk add --no-cache cmake build-base gcc g++ musl-dev git ca-certificates 2>&1
+  echo "  done."
+fi
+
 BUILD_DIR="$(realpath "$(dirname "$0")/..")/build"
 BIN_DIR="${BUILD_DIR}/bin"
 SRC_DIR="$(realpath "$(dirname "$0")/..")"
@@ -42,7 +49,7 @@ if [ ! -f "${LLAMA_CPP_DIR}/CMakeLists.txt" ]; then
     git clone --depth=1 https://github.com/ggerganov/llama.cpp.git "${LLAMA_CPP_DIR}"
 fi
 cd "${LLAMA_CPP_DIR}"
-cmake -B build -DLLAMA_NO_ACCELERATE=1 -DLLAMA_STATIC=1 -DLLAMA_NATIVE=0 \
+cmake -B build -DLLAMA_NATIVE=0 \
   -DBUILD_SHARED_LIBS=0 -DLLAMA_BUILD_TESTS=0 \
   -DLLAMA_BUILD_EXAMPLES=0 -DLLAMA_BUILD_SERVER=0 \
   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY="${LLAMA_CPP_DIR}/build"
@@ -60,9 +67,10 @@ CGO_LLAMA_LDFLAGS=""
 while IFS= read -r lib; do
     libname=$(basename "${lib}" .a | sed 's/^lib//')
     CGO_LLAMA_LDFLAGS="${CGO_LLAMA_LDFLAGS} -l${libname}"
-done <<EOF
+  done <<EOF
 $(find build -name "libggml*.a" -type f)
 EOF
+CGO_LLAMA_LDFLAGS="${CGO_LLAMA_LDFLAGS} -lgomp"
 
 echo "Building inference (coginfer)..."
 cd "${SRC_DIR}/../inference"
