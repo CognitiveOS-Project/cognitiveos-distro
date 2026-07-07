@@ -1,12 +1,14 @@
 # Stage 1: Build Go binaries
 FROM golang:1.25-alpine AS builder
 
-RUN apk add --no-cache git ca-certificates
+ARG GIT_CLONE_PREFIX=git@github.com:
+RUN apk add --no-cache git ca-certificates openssh-client
+RUN mkdir -p /root/.ssh && ssh-keyscan github.com >> /root/.ssh/known_hosts 2>/dev/null
 
 WORKDIR /src
 
 RUN for repo in cpm cognitiveosd cli inference core-mcp-bridges; do \
-        git clone --depth=1 "git@github.com:CognitiveOS-Project/${repo}.git" "${repo}"; \
+        git clone --depth=1 "${GIT_CLONE_PREFIX}CognitiveOS-Project/${repo}.git" "${repo}"; \
     done
 
 RUN mkdir -p /out/bin/bridges
