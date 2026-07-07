@@ -1,8 +1,8 @@
 FROM golang:1.25-alpine AS builder
 
-RUN apk add --no-cache git ca-certificates make
+RUN apk add --no-cache git ca-certificates cmake build-base make
 COPY scripts/docker-build-bins.sh /tmp/build.sh
-RUN /tmp/build.sh release
+RUN chmod +x /tmp/build.sh && /tmp/build.sh
 
 FROM alpine:edge
 
