@@ -16,7 +16,7 @@ RUN for repo in cpm cognitiveosd cli inference core-mcp-bridges; do \
 # Build llama.cpp (vendored in inference repo)
 RUN cd /src/inference && \
     mkdir -p vendor && \
-    git clone --depth=1 https://github.com/ggerganov/llama.cpp.git vendor/llama.cpp && \
+    git clone --depth=1 git@github.com:ggerganov/llama.cpp.git vendor/llama.cpp && \
     cd vendor/llama.cpp && \
     cmake -B build -DLLAMA_NATIVE=0 \
       -DBUILD_SHARED_LIBS=0 -DLLAMA_BUILD_TESTS=0 \
