@@ -8,6 +8,9 @@ idle_timeout_seconds = 300
 backend = "cli"
 endpoint = "http://127.0.0.1:11434"
 
+[raw_model]
+model = "/cognitiveos/models/raw/raw-model.gguf"
+
 [daemon]
 socket_path = "/cognitiveos/run/daemon.sock"
 audit_interval_seconds = 60

@@ -1,22 +1,21 @@
 # Stage 1: Build Go binaries
 FROM golang:1.25-alpine AS builder
 
+ARG GIT_CLONE_PREFIX=git@github.com:
 RUN apk add --no-cache git ca-certificates cmake build-base gcc g++ openssh-client
-
-# Configure SSH for private repo access
-RUN mkdir -p /root/.ssh && ssh-keyscan github.com >> /root/.ssh/known_hosts
+RUN mkdir -p /root/.ssh && ssh-keyscan github.com >> /root/.ssh/known_hosts 2>/dev/null
 
 WORKDIR /src
 
-# Clone all repos
+# Clone all repos (use GIT_CLONE_PREFIX build arg for CI token auth)
 RUN for repo in cpm cognitiveosd cli inference core-mcp-bridges; do \
-        git clone --depth=1 "git@github.com:CognitiveOS-Project/${repo}.git" "${repo}"; \
+        git clone --depth=1 "${GIT_CLONE_PREFIX}CognitiveOS-Project/${repo}.git" "${repo}"; \
     done
 
 # Build llama.cpp (vendored in inference repo)
 RUN cd /src/inference && \
     mkdir -p vendor && \
-    git clone --depth=1 git@github.com:ggerganov/llama.cpp.git vendor/llama.cpp && \
+    git clone --depth=1 https://github.com/ggerganov/llama.cpp.git vendor/llama.cpp && \
     cd vendor/llama.cpp && \
     cmake -B build -DLLAMA_NATIVE=0 \
       -DBUILD_SHARED_LIBS=0 -DLLAMA_BUILD_TESTS=0 \
