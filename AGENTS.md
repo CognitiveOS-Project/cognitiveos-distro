@@ -9,13 +9,13 @@ Build scripts and configurations for producing a bootable CognitiveOS image base
   resulting in remotes pointing to wrong repositories.
 - All repos use SSH (`git@github.com:CognitiveOS-Project/*`), never HTTPS.
 
-### Per-Repo Build Architecture
-Each Go repo (cpm, cognitiveosd, cli, inference, core-mcp-bridges) builds independently
-via its own `Makefile` and `scripts/build.sh`. The distro's `build-binaries.sh` orchestrates
-by invoking each repo's `make build` and collecting the resulting binaries from `build/bin/`.
+### Build Orchestration
+The distro contains **zero per-repo build logic**. `build-binaries.sh` is a pure
+orchestrator: it clones each repo, runs `make build && make test` in dependency order
+(cpm → inference → core-mcp-bridges → cognitiveosd → cli), and collects the resulting
+binaries. Each repo owns its own build, test, and toolchain (CGo, cross-compile, etc.).
 
 ### Workflow Notes
-- Inference builds: `CGO_ENABLED=0` in CI (mock backend); CGo with llama.cpp for production.
 - `jq` is required by `publish-cgp.sh`.
 - `build-iso.sh` and `build-rpi.sh` removed — both superseded by `build-image.sh --profile`.
 
