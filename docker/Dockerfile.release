@@ -6,7 +6,7 @@ RUN apk add --no-cache git ca-certificates
 WORKDIR /src
 
 RUN for repo in cpm cognitiveosd cli inference core-mcp-bridges; do \
-        git clone --depth=1 "https://github.com/CognitiveOS-Project/${repo}.git" "${repo}"; \
+        git clone --depth=1 "git@github.com:CognitiveOS-Project/${repo}.git" "${repo}"; \
     done
 
 RUN mkdir -p /out/bin/bridges
