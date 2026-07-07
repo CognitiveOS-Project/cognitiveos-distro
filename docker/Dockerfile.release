@@ -1,18 +1,8 @@
 FROM golang:1.25-alpine AS builder
 
-ARG GIT_CLONE_PREFIX=https://github.com/
 RUN apk add --no-cache git ca-certificates make
-WORKDIR /src
-
-RUN for repo in cpm cognitiveosd cli inference core-mcp-bridges; do \
-        git clone --depth=1 "${GIT_CLONE_PREFIX}CognitiveOS-Project/${repo}.git" "${repo}"; \
-    done && \
-    mkdir -p /out/bin/bridges && \
-    cd /src/cpm && make build && cp -a build/bin/* /out/bin/ && \
-    cd /src/cognitiveosd && make build && cp -a build/bin/* /out/bin/ && \
-    cd /src/cli && make build && cp -a build/bin/* /out/bin/ && \
-    cd /src/inference && make build && cp -a build/bin/* /out/bin/ && \
-    cd /src/core-mcp-bridges && make build && cp -a build/bin/* /out/bin/
+COPY scripts/docker-build-bins.sh /tmp/build.sh
+RUN /tmp/build.sh release
 
 FROM alpine:edge
 
