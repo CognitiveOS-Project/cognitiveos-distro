@@ -46,7 +46,7 @@ jobs:
         run: |
           for script in scripts/*.sh; do
             echo "Checking $script..."
-            bash -n "$script"
+            sh -n "$script"
           done
           echo "All scripts pass syntax check"
 
@@ -59,4 +59,4 @@ jobs:
       - name: Build ISO via Docker
         run: |
           mkdir -p output
-          bash scripts/build-image.sh --profile x86_64
+          sh scripts/build-image.sh --profile x86_64

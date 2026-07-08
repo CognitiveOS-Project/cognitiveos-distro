@@ -1,6 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 # Orchestrate per-repo builds — clone, make build, make test, collect binaries.
-set -euo pipefail
+# shellcheck disable=SC3040
+set -eu
 
 SRC_DIR="$(realpath "$(dirname "$0")/..")"
 BUILD_DIR="${SRC_DIR}/build"

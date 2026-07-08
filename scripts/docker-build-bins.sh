@@ -1,6 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 # Build all distro binaries inside a Docker build context.
-set -euo pipefail
+# shellcheck disable=SC3040
+set -eu
 
 REPOS="cpm cognitiveosd cli inference core-mcp-bridges"
 mkdir -p /out/bin/bridges

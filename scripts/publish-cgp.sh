@@ -1,5 +1,6 @@
-#!/bin/bash
-set -euo pipefail
+#!/bin/sh
+# shellcheck disable=SC3040
+set -eu
 
 usage() {
     cat <<EOF

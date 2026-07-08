@@ -28,17 +28,17 @@ jobs:
       - name: Build distro tarball
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          bash scripts/build-distro-tarball.sh "$VERSION" "x86_64"
+          sh scripts/build-distro-tarball.sh "$VERSION" "x86_64"
 
       - name: Build ISO image (x86_64)
         run: |
           mkdir -p output
-          bash scripts/build-image.sh --profile x86_64
+          sh scripts/build-image.sh --profile x86_64
 
       - name: Build RPi image (aarch64)
         run: |
           mkdir -p output
-          bash scripts/build-image.sh --profile aarch64
+          sh scripts/build-image.sh --profile aarch64
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -55,7 +55,7 @@ jobs:
             VERSION="${GITHUB_REF_NAME#v}"
             for bin in build/bin/cpm build/bin/cognitiveosd build/bin/cognitiveos-cli build/bin/cognitiveos-inference; do
               name=$(basename "$bin")
-              bash scripts/publish-cgp.sh \
+              sh scripts/publish-cgp.sh \
                 --name "$name" \
                 --version "$VERSION" \
                 --binary "$bin" \

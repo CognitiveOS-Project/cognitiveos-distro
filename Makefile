@@ -15,10 +15,10 @@ SCRIPTS_DIR := ./scripts
 all: iso rpi checksums sign
 
 iso: install-local
-	bash $(SCRIPTS_DIR)/build-image.sh --profile x86_64
+	$(SHELL) $(SCRIPTS_DIR)/build-image.sh --profile x86_64
 
 rpi: install-local
-	bash $(SCRIPTS_DIR)/build-image.sh --profile aarch64
+	$(SHELL) $(SCRIPTS_DIR)/build-image.sh --profile aarch64
 
 clean:
 	rm -rf $(BUILD_DIR) $(OUTPUT_DIR) *.iso *.img *.tar.gz
@@ -40,16 +40,16 @@ shell:
 		cognitiveos-builder /bin/sh
 
 checksums:
-	bash $(SCRIPTS_DIR)/sign.sh
+	$(SHELL) $(SCRIPTS_DIR)/sign.sh
 
 sign: checksums
 
 install-local: deps
-	bash $(SCRIPTS_DIR)/build-binaries.sh
-	bash $(SCRIPTS_DIR)/build-overlay.sh
+	$(SHELL) $(SCRIPTS_DIR)/build-binaries.sh
+	$(SHELL) $(SCRIPTS_DIR)/build-overlay.sh
 
 distro-tarball: install-local
-	bash $(SCRIPTS_DIR)/build-distro-tarball.sh
+	$(SHELL) $(SCRIPTS_DIR)/build-distro-tarball.sh
 
 publish-cgp:
 	@if [ -z "$${REGISTRY_TOKEN}" ]; then \
@@ -59,7 +59,7 @@ publish-cgp:
 	@for bin in $(BUILD_DIR)/bin/*; do \
 		name=$$(basename "$$bin"); \
 		[ "$$name" = "bridges" ] && continue; \
-		bash $(SCRIPTS_DIR)/publish-cgp.sh --name "$$name" --version "$$VERSION" --binary "$$bin"; \
+		$(SHELL) $(SCRIPTS_DIR)/publish-cgp.sh --name "$$name" --version "$$VERSION" --binary "$$bin"; \
 	done
 
 docker-release:

@@ -1,12 +1,13 @@
-#!/bin/bash
-set -euo pipefail
+#!/bin/sh
+# shellcheck disable=SC2034,SC2153,SC3040,SC3043
+set -eu
 
 SRC_DIR="$(realpath "$(dirname "$0")/..")"
 OUTPUT_DIR="${SRC_DIR}/output"
 OVERLAY_DIR="${SRC_DIR}/overlay"
 APORTS_DIR="/tmp/aports"
 APORTS_GIT="https://gitlab.alpinelinux.org/alpine/aports.git"
-MKIMAGE_DEPS=(abuild apk-tools alpine-conf busybox fakeroot syslinux xorriso squashfs-tools mtools grub-efi git)
+MKIMAGE_DEPS="abuild apk-tools alpine-conf busybox fakeroot syslinux xorriso squashfs-tools mtools grub-efi git"
 
 PROFILE=""
 PACKAGES_FILE=""
@@ -57,7 +58,7 @@ run_mkimage() {
 if command -v apk >/dev/null 2>&1 && command -v git >/dev/null 2>&1; then
     echo "  -> Alpine + git found, building natively"
     [ "$(id -u)" -eq 0 ] && SUDO="" || SUDO="sudo"
-    $SUDO apk add --no-cache "${MKIMAGE_DEPS[@]}"
+    $SUDO apk add --no-cache $MKIMAGE_DEPS
     $SUDO abuild-keygen -a -n
 
     if [ ! -d "$APORTS_DIR" ]; then
@@ -76,7 +77,7 @@ if command -v docker >/dev/null 2>&1; then
     docker run --rm --privileged \
         -v "$SRC_DIR:/workspace" \
         alpine:edge sh -c "
-            apk add --no-cache ${MKIMAGE_DEPS[*]}
+            apk add --no-cache $MKIMAGE_DEPS
             adduser -D builder
             git clone --depth=1 ${APORTS_GIT} ${APORTS_DIR}
             cp /workspace/scripts/mkimg.cognitiveos.sh ${APORTS_DIR}/scripts/
