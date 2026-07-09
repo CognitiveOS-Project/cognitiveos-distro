@@ -90,6 +90,7 @@ publish-cgp:
 verify-repos:
 	@for repo in cpm cognitiveosd cli core-mcp-bridges inference; do \
 		echo "=== Verifying $$repo ==="; \
+		rm -rf "/tmp/$$repo"; \
 		git clone --depth=1 "https://github.com/CognitiveOS-Project/$$repo.git" "/tmp/$$repo" || true; \
 		if [ "$$repo" = "inference" ]; then \
 			mkdir -p "/tmp/inference/vendor"; \
