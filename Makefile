@@ -62,7 +62,10 @@ checksums:
 sign: checksums
 
 install-local: deps
-	$(SHELL) $(SCRIPTS_DIR)/build-binaries.sh
+	@for repo in cli cognitiveosd core-mcp-bridges inference cpm; do \
+		echo "  Building $$repo..."; \
+		make -C ../$$repo build; \
+	done
 	$(SHELL) $(SCRIPTS_DIR)/build-overlay.sh
 
 distro-tarball: install-local
@@ -73,10 +76,15 @@ publish-cgp:
 		echo "  ERROR: REGISTRY_TOKEN not set"; exit 1; \
 	fi
 	@VERSION=$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev")
-	@for bin in $(BUILD_DIR)/bin/*; do \
-		name=$$(basename "$$bin"); \
-		[ "$$name" = "bridges" ] && continue; \
-		$(SHELL) $(SCRIPTS_DIR)/publish-cgp.sh --name "$$name" --version "$$VERSION" --binary "$$bin"; \
+	@for repo in cli cognitiveosd core-mcp-bridges inference cpm; do \
+		echo "  Packaging and publishing $$repo..."; \
+		make -C ../$$repo pack; \
+		for cgp in ../$$repo/*.cgp; do \
+			[ -f "$$cgp" ] || continue; \
+			URL="https://github.com/CognitiveOS-Project/$$repo/releases/download/$$VERSION/$$(basename $$cgp)"; \
+			/workspace/cpm/build/bin/cpm publish "$$cgp" --download-url "$$URL"; \
+			rm "$$cgp"; \
+		done; \
 	done
 
 release: distro-tarball docker.release
