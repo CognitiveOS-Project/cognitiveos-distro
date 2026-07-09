@@ -9,8 +9,8 @@ OVERLAY_DIR := ./overlay
 BUILD_DIR := ./build
 SCRIPTS_DIR := ./scripts
 
-.PHONY: all iso rpi clean distclean docker shell checksums sign
-.PHONY: install-local distro-tarball publish-cgp docker-release release deps
+.PHONY: all iso rpi clean distclean docker docker.build docker.release shell checksums sign
+.PHONY: install-local distro-tarball publish-cgp release deps
 
 all: iso rpi checksums sign
 
@@ -26,10 +26,27 @@ clean:
 distclean: clean
 	rm -rf ./cache ./work
 
+# --- Docker build targets — Dockerfiles only call these, no repo-specific logic ---
+
+# Build binaries + overlay (used inside Dockerfile RUN, not on host directly)
+docker.build:
+	$(SHELL) $(SCRIPTS_DIR)/build-binaries.sh
+	$(SHELL) $(SCRIPTS_DIR)/build-overlay.sh
+	mkdir -p /out 2>/dev/null && cp -a $(OVERLAY_DIR)/. /out/ 2>/dev/null; true
+
+# Build the builder image (calls docker.build inside the container)
 docker:
 	docker build -f docker/Dockerfile.build -t cognitiveos-builder .
 
-shell:
+docker.release:
+	docker build -f docker/Dockerfile.release \
+		-t cognitiveos:$$(cat VERSION 2>/dev/null || echo "dev") \
+		-t cognitiveos:latest .
+
+# Backward compat
+docker-release: docker.release
+
+shell: docker
 	docker run --rm -it \
 		-v "$(CURDIR)/../cpm:/src/cpm" \
 		-v "$(CURDIR)/../cognitiveosd:/src/cognitiveosd" \
@@ -62,12 +79,7 @@ publish-cgp:
 		$(SHELL) $(SCRIPTS_DIR)/publish-cgp.sh --name "$$name" --version "$$VERSION" --binary "$$bin"; \
 	done
 
-docker-release:
-	docker build -f docker/Dockerfile.release \
-		-t cognitiveos:$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev") \
-		-t cognitiveos:latest .
-
-release: distro-tarball docker-release
+release: distro-tarball docker.release
 	ls -lh $(OUTPUT_DIR)/
 
 deps:

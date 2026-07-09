@@ -11,12 +11,14 @@ MKIMAGE_DEPS="abuild apk-tools alpine-conf busybox fakeroot syslinux xorriso squ
 
 PROFILE=""
 PACKAGES_FILE=""
+CLASS="standard"
 
 while [ $# -gt 0 ]; do
     case "$1" in
         --profile)    PROFILE="$2"; shift 2 ;;
+        --class)      CLASS="$2"; shift 2 ;;
         --packages)   PACKAGES_FILE="$2"; shift 2 ;;
-        *) echo "Usage: $0 --profile x86_64|aarch64 [--packages <file>]"; exit 1 ;;
+        *) echo "Usage: $0 --profile x86_64|aarch64|armv7 [--class standard|edge|titan] [--packages <file>]"; exit 1 ;;
     esac
 done
 
@@ -24,7 +26,14 @@ done
 [ -n "$PACKAGES_FILE" ] || PACKAGES_FILE="${SRC_DIR}/packages.${PROFILE}"
 [ -f "$PACKAGES_FILE" ] || { echo "ERROR: packages file not found: $PACKAGES_FILE"; exit 1; }
 
-TAG="cognitiveos-${PROFILE}-$(date +%Y%m%d)"
+VERSION=$(cat "${SRC_DIR}/VERSION" 2>/dev/null || echo "0.0.0")
+# Default class by profile
+case "$PROFILE" in
+    x86_64)  CLASS="${CLASS:-standard}" ;;
+    aarch64) CLASS="${CLASS:-edge}" ;;
+    armv7)   CLASS="${CLASS:-edge}" ;;
+esac
+TAG="${VERSION}-${CLASS}"
 
 run_mkimage() {
     local aports_dir="$1"
@@ -51,8 +60,25 @@ run_mkimage() {
             --tag "$TAG"
     fi
 
+    echo ""; echo "Renaming output to spec format..."
+    for f in "${OUTPUT_DIR}/cognitiveos-${TAG}"*; do
+        [ -f "$f" ] || continue
+        base=$(basename "$f")
+        ext="${base##*.}"
+        # Alpine mkimage produces: cognitiveos-{version}-{class}(-{arch}).{ext}
+        # Rename to: cognitiveos-{version}-{class}-{arch}.{ext}
+        if echo "$base" | grep -q "${PROFILE}\.${ext}$"; then
+            # Already has arch suffix — leave it
+            :
+        else
+            # Add arch before extension
+            newname="cognitiveos-${VERSION}-${CLASS}-${PROFILE}.${ext}"
+            mv "$f" "${OUTPUT_DIR}/${newname}"
+            echo "  → ${newname}"
+        fi
+    done
     echo ""; echo "Build complete. Output in ${OUTPUT_DIR}:"
-    ls -lh "$OUTPUT_DIR/"
+    ls -lh "$OUTPUT_DIR/" | grep -v SHA256
 }
 
 if command -v apk >/dev/null 2>&1 && command -v git >/dev/null 2>&1; then

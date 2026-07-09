@@ -11,6 +11,7 @@ profile_cognitiveos() {
     hostname="cognitiveos"
     modloop_sign=no
     image_name="cognitiveos"
+    image_ext="iso"
 
     case "$ARCH" in
         x86_64)
