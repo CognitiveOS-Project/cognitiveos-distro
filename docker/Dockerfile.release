@@ -1,6 +1,10 @@
 FROM golang:1.25-alpine AS builder
 
-RUN apk update && apk add --no-cache git ca-certificates cmake build-base make
+RUN sed -i 's/dl-cdn.alpinelinux.org/dl-cdn.alpinelinux.org/g' /etc/apk/repositories && \
+    # This command uncommented the community repository
+    sed -i 's/#http/http/g' /etc/apk/repositories && \
+    apk update
+RUN apk add --no-cache git ca-certificates cmake build-base make
 
 WORKDIR /src
 COPY . .
@@ -8,6 +12,11 @@ COPY . .
 RUN make docker.build
 
 FROM alpine:edge
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/dl-cdn.alpinelinux.org/g' /etc/apk/repositories && \
+    # This command uncommented the community repository
+    sed -i 's/#http/http/g' /etc/apk/repositories && \
+    apk update
 
 RUN apk update && apk add --no-cache \
     alpine-base busybox openrc linux-lts \
