@@ -25,18 +25,7 @@ jobs:
         with:
           go-version: "1.24"
       - name: Verify each repo builds via its own Makefile
-        run: |
-          for repo in cpm cognitiveosd cli core-mcp-bridges; do
-            echo "=== $repo ==="
-            git clone --depth=1 "https://github.com/CognitiveOS-Project/${repo}.git" "/tmp/${repo}"
-            cd "/tmp/${repo}"
-            make build
-            cd /tmp
-          done
-          echo "=== inference (mock backend, no llama.cpp) ==="
-          git clone --depth=1 "https://github.com/CognitiveOS-Project/inference.git" "/tmp/inference"
-          cd "/tmp/inference"
-          make build-mock
+        run: make verify-repos
 
   script-check:
     runs-on: ubuntu-latest

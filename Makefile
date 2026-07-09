@@ -10,7 +10,7 @@ BUILD_DIR := ./build
 SCRIPTS_DIR := ./scripts
 
 .PHONY: all iso rpi clean distclean docker docker.build docker.release shell checksums sign
-.PHONY: install-local distro-tarball publish-cgp release deps
+.PHONY: install-local distro-tarball publish-cgp release deps verify-repos release-assets publish-all
 
 all: iso rpi checksums sign
 
@@ -86,6 +86,26 @@ publish-cgp:
 			rm "$$cgp"; \
 		done; \
 	done
+
+verify-repos:
+	@for repo in cpm cognitiveosd cli core-mcp-bridges; do \
+		echo "=== Verifying $$repo ==="; \
+		git clone --depth=1 "https://github.com/CognitiveOS-Project/$$repo.git" "/tmp/$$repo" || true; \
+		make -C "/tmp/$$repo" build; \
+	done
+	@echo "=== Verifying inference (mock) ==="
+	@git clone --depth=1 "https://github.com/CognitiveOS-Project/inference.git" "/tmp/inference" || true
+	@make -C "/tmp/inference" build-mock
+
+release-assets: install-local
+	@VERSION=$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev"); \
+	echo "Building release assets for v$$VERSION..."; \
+	$(SHELL) $(SCRIPTS_DIR)/build-distro-tarball.sh "$$VERSION" "x86_64"; \
+	mkdir -p output; \
+	$(SHELL) $(SCRIPTS_DIR)/build-image.sh --profile x86_64; \
+	$(SHELL) $(SCRIPTS_DIR)/build-image.sh --profile aarch64
+
+publish-all: publish-cgp
 
 release: distro-tarball docker.release
 	ls -lh $(OUTPUT_DIR)/
