@@ -91,6 +91,10 @@ verify-repos:
 	@for repo in cpm cognitiveosd cli core-mcp-bridges inference; do \
 		echo "=== Verifying $$repo ==="; \
 		git clone --depth=1 "https://github.com/CognitiveOS-Project/$$repo.git" "/tmp/$$repo" || true; \
+		if [ "$$repo" = "inference" ]; then \
+			mkdir -p "/tmp/inference/vendor"; \
+			git clone --depth=1 https://github.com/ggerganov/llama.cpp.git "/tmp/inference/vendor/llama.cpp"; \
+		fi; \
 		make -C "/tmp/$$repo" build; \
 	done
 
