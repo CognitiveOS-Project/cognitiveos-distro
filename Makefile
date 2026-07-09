@@ -88,14 +88,11 @@ publish-cgp:
 	done
 
 verify-repos:
-	@for repo in cpm cognitiveosd cli core-mcp-bridges; do \
+	@for repo in cpm cognitiveosd cli core-mcp-bridges inference; do \
 		echo "=== Verifying $$repo ==="; \
 		git clone --depth=1 "https://github.com/CognitiveOS-Project/$$repo.git" "/tmp/$$repo" || true; \
 		make -C "/tmp/$$repo" build; \
 	done
-	@echo "=== Verifying inference (mock) ==="
-	@git clone --depth=1 "https://github.com/CognitiveOS-Project/inference.git" "/tmp/inference" || true
-	@make -C "/tmp/inference" build-mock
 
 release-assets: install-local
 	@VERSION=$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev"); \
@@ -105,7 +102,14 @@ release-assets: install-local
 	$(SHELL) $(SCRIPTS_DIR)/build-image.sh --profile x86_64; \
 	$(SHELL) $(SCRIPTS_DIR)/build-image.sh --profile aarch64
 
-publish-all: publish-cgp
+publish-all:
+	@if [ -z "$${REGISTRY_TOKEN}" ]; then \
+		echo "  ERROR: REGISTRY_TOKEN not set"; exit 1; \
+	fi
+	@for repo in cli cognitiveosd core-mcp-bridges inference cpm; do \
+		echo "  Publishing $$repo..."; \
+		make -C ../$$repo publish; \
+	done
 
 release: distro-tarball docker.release
 	ls -lh $(OUTPUT_DIR)/
