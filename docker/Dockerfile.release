@@ -1,6 +1,6 @@
 FROM golang:1.25-alpine AS builder
 
-RUN apk add --no-cache git ca-certificates cmake build-base make
+RUN apk update && apk add --no-cache git ca-certificates cmake build-base make
 
 WORKDIR /src
 COPY . .
@@ -9,7 +9,7 @@ RUN make docker.build
 
 FROM alpine:edge
 
-RUN apk add --no-cache \
+RUN apk update && apk add --no-cache \
     alpine-base busybox openrc linux-lts \
     alsa-utils alsa-lib \
     iw wpa_supplicant dhcpcd \
