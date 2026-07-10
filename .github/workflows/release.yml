@@ -1,76 +1,69 @@
 name: Release
 
 on:
-  push:
-    tags: ['v*']
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Release version (e.g. 0.4.0)'
-        required: true
+  workflow_run:
+    workflows:
+      - "Release standard-x86_64"
+      - "Release titan-aarch64"
+      - "Release edge-aarch64"
+      - "Release edge-armv7"
+      - "Release gateway-x86_64"
+      - "Release micro-armv7"
+    types: [completed]
 
 permissions:
   contents: write
-  packages: write
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: "1.24"
-
-      - name: Build release assets
-        run: make release-assets
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: distro-artifacts
-          path: output/
-
-      - name: Publish .cgp packages to registry
-        env:
-          REGISTRY_URL: ${{ secrets.REGISTRY_URL || 'https://registry-us-all-distros-official.cognitive-os.org/v1' }}
-          REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
-        run: make publish-all
-
   release:
-    needs: build
     runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download artifacts
+      - name: Wait for all variant artifacts
+        run: |
+          EXPECTED=6
+          for i in $(seq 1 30); do
+            COUNT=$(gh api repos/${{ github.repository }}/actions/runs \
+              --jq "[.workflow_runs[] | select(.conclusion==\"success\" and .head_branch==\"${{ github.event.workflow_run.head_branch }}\")] | length")
+            if [ "$COUNT" -ge "$EXPECTED" ]; then
+              echo "All $EXPECTED variant builds completed"
+              exit 0
+            fi
+            echo "Waiting for all variants ($COUNT/$EXPECTED)..."
+            sleep 60
+          done
+          echo "Timed out waiting for all variants"
+          exit 1
+
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: distro-artifacts
+          pattern: distro-*
           path: output/
+          merge-multiple: true
 
       - name: Generate checksums
         working-directory: output
         run: sha256sum -- * > SHA256SUMS
 
-      - name: Create GitHub Release
+      - name: Finalize GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: CognitiveOS Distro ${{ github.ref_name }}
+          name: CognitiveOS ${{ github.event.workflow_run.head_branch }}
           body: |
-            ## CognitiveOS Distribution ${{ github.ref_name }}
+            ## CognitiveOS ${{ github.event.workflow_run.head_branch }}
 
             ### Artifacts
-            - `cognitiveos-distro-*.tar.gz` — portable distro tarball (extract on Alpine, run `make iso`/`make rpi` to build bootable images)
-            - `*.iso` — bootable x86_64 ISO image
-            - `*.img` — aarch64 Raspberry Pi image
+            - `cognitiveos-*.iso` — bootable ISO images
+            - `cognitiveos-*.img` — aarch64/armv7 images
+            - `cognitiveos-distro-*.tar.gz` — portable tarballs
             - `SHA256SUMS` — integrity checksums
 
-            ### Docker Image
-            Also published to `ghcr.io/CognitiveOS-Project/cognitiveos-distro:${{ github.ref_name }}`
-            ```
-            docker pull ghcr.io/CognitiveOS-Project/cognitiveos-distro:${{ github.ref_name }}
-            ```
+            ### Docker Images
+            Published to `ghcr.io/CognitiveOS-Project/cognitiveos-distro:VERSION-CLASS-ARCH`
+            Example: `ghcr.io/CognitiveOS-Project/cognitiveos-distro:${{ github.event.workflow_run.head_branch }}-standard-x86_64`
 
             ### Registry Packages
             Core components published as .cgp packages to the official CognitiveOS registry.

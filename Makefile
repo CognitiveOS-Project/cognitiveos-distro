@@ -10,7 +10,8 @@ BUILD_DIR := ./build
 SCRIPTS_DIR := ./scripts
 
 .PHONY: all iso rpi clean distclean docker docker.build docker.release shell checksums sign
-.PHONY: install-local distro-tarball publish-cgp release deps verify-repos release-assets publish-all
+.PHONY: install-local distro-tarball publish-cgp release deps verify-repos release-assets publish-all publish-all-safe
+.PHONY: release-variant docker-release-arch docker-push-arch
 
 all: iso rpi checksums sign
 
@@ -43,8 +44,41 @@ docker.release:
 		-t cognitiveos:$$(cat VERSION 2>/dev/null || echo "dev") \
 		-t cognitiveos:latest .
 
-# Backward compat
-docker-release: docker.release
+# --- Per-architecture release targets ---
+
+release-variant: install-local
+	@VERSION=$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev"); \
+	echo "Building $(CLASS)-$(ARCH) release assets for v$$VERSION..."; \
+	$(SHELL) $(SCRIPTS_DIR)/build-distro-tarball.sh "$$VERSION" "$(ARCH)"; \
+	mkdir -p output; \
+	$(SHELL) $(SCRIPTS_DIR)/build-image.sh --profile $(ARCH) --class $(CLASS)
+
+# --- Docker per-arch targets ---
+
+docker-release-arch:
+	@VERSION=$$(cat VERSION 2>/dev/null || echo "dev"); \
+	ARCH=$(ARCH); \
+	CLASS=$(CLASS); \
+	docker build -f docker/Dockerfile.release \
+		-t cognitiveos:$${VERSION}-$(CLASS)-$(ARCH) \
+		-t ghcr.io/CognitiveOS-Project/cognitiveos-distro:$${VERSION}-$(CLASS)-$(ARCH) .
+
+docker-push-arch:
+	@VERSION=$$(cat VERSION 2>/dev/null || echo "dev"); \
+	ARCH=$(ARCH); \
+	CLASS=$(CLASS); \
+	docker push ghcr.io/CognitiveOS-Project/cognitiveos-distro:$${VERSION}-$(CLASS)-$(ARCH)
+
+# --- Safe publish (exits 0 if REGISTRY_TOKEN missing) ---
+
+publish-all-safe:
+	@if [ -z "$${REGISTRY_TOKEN:-}" ]; then \
+		echo "  WARNING: REGISTRY_TOKEN not set, skipping publish"; exit 0; \
+	fi
+	@for repo in cli cognitiveosd core-mcp-bridges inference cpm; do \
+		echo "  Publishing $$repo..."; \
+		make -C ../$$repo publish; \
+	done
 
 shell: docker
 	docker run --rm -it \

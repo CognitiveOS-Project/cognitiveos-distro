@@ -1,0 +1,86 @@
+name: Release titan-aarch64
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 0.4.0)'
+        required: true
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Build release assets
+        env:
+          CGO_ENABLED: "1"
+        run: make release-variant ARCH=aarch64 CLASS=titan
+
+      - name: Build Docker image
+        env:
+          CGO_ENABLED: "1"
+        run: make docker-release-arch ARCH=aarch64 CLASS=titan
+
+      - name: Push Docker image
+        run: make docker-push-arch ARCH=aarch64 CLASS=titan
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: distro-titan-aarch64
+          path: output/
+
+      - name: Publish .cgp packages to registry
+        env:
+          REGISTRY_URL: ${{ secrets.REGISTRY_URL || 'https://registry-us-all-distros-official.cognitive-os.org/v1' }}
+          REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+        run: make publish-all-safe
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: distro-titan-aarch64
+          path: output/
+
+      - name: Generate checksums
+        working-directory: output
+        run: sha256sum -- * > SHA256SUMS
+
+      - name: Append to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: CognitiveOS ${{ github.ref_name }}
+          body: |
+            ## CognitiveOS ${{ github.ref_name }}
+
+            ### aarch64 Artifacts
+            - `cognitiveos-*.img` — aarch64 Raspberry Pi image
+            - `cognitiveos-distro-*.tar.gz` — portable distro tarball
+            - `SHA256SUMS` — integrity checksums
+
+            ### Docker Image
+            Published to `ghcr.io/CognitiveOS-Project/cognitiveos-distro:${{ github.ref_name }}-titan-aarch64`
+            ```
+            docker pull ghcr.io/CognitiveOS-Project/cognitiveos-distro:${{ github.ref_name }}-titan-aarch64
+            ```
+          files: output/*
