@@ -1,4 +1,8 @@
+ARG CGO_ENABLED=0
 FROM golang:1.25-alpine AS builder
+
+ARG CGO_ENABLED
+ENV CGO_ENABLED=${CGO_ENABLED}
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/dl-cdn.alpinelinux.org/g' /etc/apk/repositories && \
     # This command uncommented the community repository

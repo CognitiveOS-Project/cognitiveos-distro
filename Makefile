@@ -9,7 +9,7 @@ OVERLAY_DIR := ./overlay
 BUILD_DIR := ./build
 SCRIPTS_DIR := ./scripts
 
-.PHONY: all iso rpi clean distclean docker docker.build docker.release shell checksums sign
+.PHONY: all iso rpi clean distclean docker docker.build shell checksums sign
 .PHONY: install-local distro-tarball publish-cgp release deps verify-repos release-assets publish-all publish-all-safe
 .PHONY: release-variant docker-release-arch docker-push-arch
 
@@ -39,11 +39,6 @@ docker.build:
 docker:
 	docker build -f docker/Dockerfile.build -t cognitiveos-builder .
 
-docker.release:
-	docker build -f docker/Dockerfile.release \
-		-t cognitiveos:$$(cat VERSION 2>/dev/null || echo "dev") \
-		-t cognitiveos:latest .
-
 # --- Per-architecture release targets ---
 
 release-variant: install-local
@@ -59,9 +54,12 @@ docker-release-arch:
 	@VERSION=$$(cat VERSION 2>/dev/null || echo "dev"); \
 	ARCH=$(ARCH); \
 	CLASS=$(CLASS); \
-	docker build -f docker/Dockerfile.release \
+	docker buildx build --platform linux/$(ARCH) \
+		--build-arg CGO_ENABLED=1 \
+		-f docker/Dockerfile.release \
 		-t cognitiveos:$${VERSION}-$(CLASS)-$(ARCH) \
-		-t ghcr.io/CognitiveOS-Project/cognitiveos-distro:$${VERSION}-$(CLASS)-$(ARCH) .
+		-t ghcr.io/CognitiveOS-Project/cognitiveos-distro:$${VERSION}-$(CLASS)-$(ARCH) \
+		--load .
 
 docker-push-arch:
 	@VERSION=$$(cat VERSION 2>/dev/null || echo "dev"); \
@@ -150,7 +148,7 @@ publish-all:
 		make -C ../$$repo publish; \
 	done
 
-release: distro-tarball docker.release
+release: distro-tarball
 	ls -lh $(OUTPUT_DIR)/
 
 deps:

@@ -33,7 +33,6 @@ binaries. Each repo owns its own build, test, and toolchain (CGo, cross-compile,
 ### Workflows
 
 - `ci.yml` — shellcheck + Go compilation verification on PR/commit
-- `docker.yml` — build & push Docker image to GHCR on push to main or v* tags
 - `release.yml` — on v* tag:
   1. Build Go binaries + overlay
   2. Create distro tarball (upload to Release)
@@ -56,8 +55,7 @@ binaries. Each repo owns its own build, test, and toolchain (CGo, cross-compile,
 | `install-local` | Orchestrate per-repo builds (make build) + assemble overlay |
 | `distro-tarball` | Build portable distro tarball (overlay + binaries) |
 | `publish-cgp` | Publish .cgp packages to registry (needs REGISTRY_TOKEN) |
-| `docker-release` | Build Docker release image from Dockerfile.release |
-| `release` | distro-tarball + docker-release |
+| `release` | distro-tarball |
 | `docker` | Build Docker build image (cross-compilation) |
 | `shell` | Interactive shell in build container |
 | `checksums` / `sign` | Generate SHA-256 + GPG signatures |
