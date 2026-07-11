@@ -18,11 +18,6 @@ for repo in ${REPOS}; do
     if [ ! -d "${SRC_PATH}" ]; then
         echo "Cloning ${repo}..."
         git clone --depth=1 "https://github.com/CognitiveOS-Project/${repo}.git" "${SRC_PATH}"
-        if [ "$repo" = "inference" ]; then
-            echo "  Cloning llama.cpp into vendor/..."
-            mkdir -p "${SRC_PATH}/vendor"
-            git clone --depth=1 https://github.com/ggerganov/llama.cpp.git "${SRC_PATH}/vendor/llama.cpp"
-        fi
     fi
 done
 
