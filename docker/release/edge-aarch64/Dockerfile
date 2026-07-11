@@ -18,7 +18,7 @@ RUN apk add --no-cache \
     alsa-utils alsa-lib \
     iw wpa_supplicant dhcpcd \
     libgpiod kbd \
-    dosfstools e2fsprogs squashfs-tools acpid \
-    fbv fbi gpiod-tools
+    dosfstools e2fsprogs squashfs-tools acpid
+
 COPY --from=builder /out/ /
 ENTRYPOINT ["/usr/local/bin/cognitiveos-cli"]

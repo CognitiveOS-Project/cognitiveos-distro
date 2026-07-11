@@ -1,9 +1,8 @@
 name: Release titan-aarch64
 
 on:
-  push:
-    tags: ['v*']
   workflow_dispatch:
+
     inputs:
       version:
         description: 'Release version (e.g. 0.4.0)'
@@ -15,6 +14,7 @@ permissions:
 
 jobs:
   build:
+    timeout-minutes: 180
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

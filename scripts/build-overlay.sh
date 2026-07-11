@@ -39,21 +39,55 @@ if [ -d "${BIN_DIR}/bridges" ]; then
 fi
 
 # Download models (skip if no cpm binary or network unavailable)
-RAW_MODEL_QUERY="${RAW_MODEL_QUERY:-qwen2.5-1.5b-instruct-gguf}"
-WIDE_MODEL_QUERY="${WIDE_MODEL_QUERY:-qwen2.5-3b-instruct-gguf}"
+CLASS="${CLASS:-standard}"
+case "$CLASS" in
+    titan)
+        RAW_MODEL_QUERY="qwen2.5-235b-instruct-gguf"
+        WIDE_MODEL_QUERY=""
+        ;;
+    standard)
+        RAW_MODEL_QUERY="qwen2.5-1.5b-instruct-gguf"
+        WIDE_MODEL_QUERY="gemma-4-8b-instruct-gguf"
+        ;;
+    gateway)
+        RAW_MODEL_QUERY=""
+        WIDE_MODEL_QUERY=""
+        ;;
+    edge)
+        RAW_MODEL_QUERY="qwen2.5-0.5b-instruct-gguf"
+        WIDE_MODEL_QUERY="tiny-llm-gguf"
+        ;;
+    micro)
+        RAW_MODEL_QUERY=""
+        WIDE_MODEL_QUERY=""
+        ;;
+    *)
+        RAW_MODEL_QUERY="qwen2.5-1.5b-instruct-gguf"
+        WIDE_MODEL_QUERY="qwen2.5-3b-instruct-gguf"
+        ;;
+esac
+
 CPM="${BIN_DIR}/cpm"
 if [ -x "$CPM" ]; then
     if [ -n "${DOWNLOAD_MODELS:-}" ]; then
-        echo "  Downloading Raw Model (smallest GGUF for \"${RAW_MODEL_QUERY}\")..."
-        "$CPM" download-weights --kind raw --type gguf \
-            --output "${OVERLAY_DIR}/cognitiveos/models/raw/raw-model.gguf" \
-            "${RAW_MODEL_QUERY}" 2>/dev/null || echo "  WARNING: Raw Model download failed — skipping"
-        chmod 0400 "${OVERLAY_DIR}/cognitiveos/models/raw/raw-model.gguf" 2>/dev/null || true
+        if [ -n "$RAW_MODEL_QUERY" ]; then
+            echo "  Downloading Raw Model (smallest GGUF for \"${RAW_MODEL_QUERY}\")..."
+            "$CPM" download-weights --kind raw --type gguf \
+                --output "${OVERLAY_DIR}/cognitiveos/models/raw/raw-model.gguf" \
+                "${RAW_MODEL_QUERY}" 2>/dev/null || echo "  WARNING: Raw Model download failed — skipping"
+            chmod 0400 "${OVERLAY_DIR}/cognitiveos/models/raw/raw-model.gguf" 2>/dev/null || true
+        else
+            echo "  SKIP: Raw Model is compiled-in for class \"${CLASS}\""
+        fi
 
-        echo "  Downloading Wide Model (smallest GGUF for \"${WIDE_MODEL_QUERY}\")..."
-        "$CPM" download-weights --kind wide --type gguf \
-            --output "${OVERLAY_DIR}/cognitiveos/models/wide/active/model.gguf" \
-            "${WIDE_MODEL_QUERY}" 2>/dev/null || echo "  WARNING: Wide Model download failed — skipping"
+        if [ -n "$WIDE_MODEL_QUERY" ]; then
+            echo "  Downloading Wide Model (smallest GGUF for \"${WIDE_MODEL_QUERY}\")..."
+            "$CPM" download-weights --kind wide --type gguf \
+                --output "${OVERLAY_DIR}/cognitiveos/models/wide/active/model.gguf" \
+                "${WIDE_MODEL_QUERY}" 2>/dev/null || echo "  WARNING: Wide Model download failed — skipping"
+        else
+            echo "  SKIP: Wide Model is remote-only for class \"${CLASS}\""
+        fi
     else
         echo "  SKIP: model download disabled (set DOWNLOAD_MODELS=1 to enable)"
     fi

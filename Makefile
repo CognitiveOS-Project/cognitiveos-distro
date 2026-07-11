@@ -73,7 +73,13 @@ docker-push-arch:
 	CLASS=$(CLASS); \
 	docker push ghcr.io/cognitiveos-project/cognitiveos:$${VERSION}-$(CLASS)-$(ARCH)
 
-# --- Safe publish (exits 0 if REGISTRY_TOKEN missing) ---
+# --- Convenience Targets ---
+gateway:
+	$(MAKE) release-variant ARCH=x86_64 CLASS=gateway
+micro:
+	$(MAKE) release-variant ARCH=armv7 CLASS=micro
+titan:
+	$(MAKE) release-variant ARCH=aarch64 CLASS=titan
 
 publish-all-safe:
 	@if [ -z "$${REGISTRY_TOKEN:-}" ]; then \
@@ -101,7 +107,7 @@ sign: checksums
 
 install-local: deps
 	$(SHELL) $(SCRIPTS_DIR)/build-binaries.sh
-	$(SHELL) $(SCRIPTS_DIR)/build-overlay.sh
+	CLASS=$(CLASS) ARCH=$(ARCH) $(SHELL) $(SCRIPTS_DIR)/build-overlay.sh
 
 distro-tarball: install-local
 	$(SHELL) $(SCRIPTS_DIR)/build-distro-tarball.sh
@@ -126,10 +132,10 @@ verify-repos:
 	@for repo in cpm cognitiveosd cli core-mcp-bridges inference; do \
 		echo "=== Verifying $$repo ==="; \
 		rm -rf "/tmp/$$repo"; \
-		git clone --depth=1 "https://github.com/CognitiveOS-Project/$$repo.git" "/tmp/$$repo" || true; \
+		git clone --depth=1 "git@github.com:CognitiveOS-Project/$$repo.git" "/tmp/$$repo" || true; \
 		if [ "$$repo" = "inference" ]; then \
 			mkdir -p "/tmp/inference/vendor"; \
-			git clone --depth=1 https://github.com/ggerganov/llama.cpp.git "/tmp/inference/vendor/llama.cpp"; \
+			git clone --depth=1 git@github.com:ggerganov/llama.cpp.git "/tmp/inference/vendor/llama.cpp"; \
 		fi; \
 		CGO_ENABLED=1 make -C "/tmp/$$repo" build; \
 	done
@@ -137,10 +143,13 @@ verify-repos:
 release-assets: install-local
 	@VERSION=$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev"); \
 	echo "Building release assets for v$$VERSION..."; \
-	$(SHELL) $(SCRIPTS_DIR)/build-distro-tarball.sh "$$VERSION" "x86_64"; \
-	mkdir -p output; \
-	$(SHELL) $(SCRIPTS_DIR)/build-image.sh --profile x86_64; \
-	$(SHELL) $(SCRIPTS_DIR)/build-image.sh --profile aarch64
+	for combo in "standard-x86_64" "gateway-x86_64" "titan-aarch64" "edge-aarch64" "edge-armv7" "micro-armv7"; do \
+		CLASS=$${combo%/*}; ARCH=$${combo#*-}; \
+		echo "  Building $$combo..."; \
+		$(SHELL) $(SCRIPTS_DIR)/build-distro-tarball.sh "$$VERSION" "$$ARCH"; \
+		mkdir -p output; \
+		$(SHELL) $(SCRIPTS_DIR)/build-image.sh --profile $$ARCH --class $$CLASS; \
+	done
 
 publish-all:
 	@if [ -z "$${REGISTRY_TOKEN}" ]; then \

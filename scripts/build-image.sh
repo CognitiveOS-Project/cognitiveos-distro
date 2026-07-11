@@ -18,7 +18,8 @@ while [ $# -gt 0 ]; do
         --profile)    PROFILE="$2"; shift 2 ;;
         --class)      CLASS="$2"; shift 2 ;;
         --packages)   PACKAGES_FILE="$2"; shift 2 ;;
-        *) echo "Usage: $0 --profile x86_64|aarch64|armv7 [--class standard|edge|titan] [--packages <file>]"; exit 1 ;;
+        *) echo "Usage: $0 --profile x86_64|aarch64|armv7 [--class standard|edge|titan|gateway|micro] [--packages <file>]
+"; exit 1 ;;
     esac
 done
 
@@ -119,7 +120,7 @@ if command -v docker >/dev/null 2>&1; then
             chown -R builder:builder ${APORTS_DIR} /workspace/output
             su builder -p -c '
                 export HOME=/home/builder
-                export COGNITIVEOS_PACKAGES_FILE=/workspace/packages.${PROFILE}
+                export COGNITIVEOS_PACKAGES_FILE=/workspace/packages.${CLASS}-${PROFILE}
                 export COGNITIVEOS_OVERLAY_DIR=/workspace/overlay
                 cd ${APORTS_DIR}/scripts
                 abuild-keygen -a -n

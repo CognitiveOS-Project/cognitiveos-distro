@@ -3,12 +3,12 @@ name: Release
 on:
   workflow_run:
     workflows:
-      - "Release standard-x86_64"
-      - "Release titan-aarch64"
-      - "Release edge-aarch64"
-      - "Release edge-armv7"
-      - "Release gateway-x86_64"
-      - "Release micro-armv7"
+  - "Release standard-x86_64"
+  - "Release edge-aarch64"
+  - "Release edge-armv7"
+  - "Release gateway-x86_64"
+  - "Release micro-armv7"
+
     types: [completed]
   workflow_dispatch:
     inputs:
@@ -43,8 +43,8 @@ jobs:
 
       - name: Wait for all variant artifacts
         run: |
-          EXPECTED=6
-          for i in $(seq 1 30); do
+          EXPECTED=5
+          for i in $(seq 1 60); do
             COUNT=$(gh api repos/${{ github.repository }}/actions/runs \
               --jq "[.workflow_runs[] | select(.conclusion==\"success\" and .head_branch==\"${{ github.event.workflow_run.head_branch }}\")] | length")
             if [ "$COUNT" -ge "$EXPECTED" ]; then
