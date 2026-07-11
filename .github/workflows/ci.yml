@@ -11,12 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-       - name: Run shellcheck
-         uses: ludeeus/action-shellcheck@v0.11.0
-         with:
-
+      - name: Run shellcheck
+        uses: ludeeus/action-shellcheck@v0.11.0
+        with:
           scandir: ./scripts
           severity: warning
+
 
   build-check:
     runs-on: ubuntu-latest
@@ -40,12 +40,13 @@ jobs:
           done
           echo "All scripts pass syntax check"
 
-   image-build:
-     if: github.event_name == 'pull_request'
-     runs-on: ubuntu-latest
-     timeout-minutes: 20
-     steps:
-       - uses: actions/checkout@v4
-       - name: Build dev Docker image
-         run: make docker.dev
+  image-build:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build dev Docker image
+        run: make docker.dev
+
 
