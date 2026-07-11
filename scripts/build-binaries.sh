@@ -17,7 +17,7 @@ for repo in ${REPOS}; do
     SRC_PATH="$(realpath "${SRC_DIR}/../${repo}")"
     if [ ! -d "${SRC_PATH}" ]; then
         echo "Cloning ${repo}..."
-        gh repo clone "CognitiveOS-Project/${repo}" "${SRC_PATH}"
+        git clone --depth=1 "https://github.com/CognitiveOS-Project/${repo}.git" "${SRC_PATH}"
     fi
 done
 
