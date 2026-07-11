@@ -7,7 +7,7 @@ Build scripts and configurations for producing a bootable CognitiveOS image base
 ### Repository Setup
 - **Always use `gh repo clone`** — plain `git clone` may resolve SSH URLs incorrectly,
   resulting in remotes pointing to wrong repositories.
-- All repos use SSH (`git@github.com:CognitiveOS-Project/*`), never HTTPS.
+- All repos use SSH (`git@github.com:CognitiveOS-Project/*`) for development. Build scripts that clone dependencies in public scopes MUST use HTTPS (`https://github.com/...`) to ensure portability and CI compatibility.
 
 ### Build Orchestration
 The distro contains **zero per-repo build logic**. `build-binaries.sh` is a pure
