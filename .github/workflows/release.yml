@@ -30,8 +30,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for wf in "release-standard-x86_64.yml" "release-titan-aarch64.yml" "release-edge-aarch64.yml" "release-edge-armv7.yml" "release-gateway-x86_64.yml" "release-micro-armv7.yml"; do
-            echo "Triggering $wf..."
+          for wf in "Release standard-x86_64" "Release titan-aarch64" "Release edge-aarch64" "Release edge-armv7" "Release gateway-x86_64" "Release micro-armv7"; do
+            echo, "Triggering $wf..."
             gh workflow run "$wf" -f version=${{ github.event.inputs.version }}
           done
 
