@@ -9,7 +9,7 @@ OVERLAY_DIR := ./overlay
 BUILD_DIR := ./build
 SCRIPTS_DIR := ./scripts
 
-.PHONY: all iso rpi clean distclean docker docker.build shell checksums sign
+.PHONY: all iso rpi clean distclean docker docker.build docker.dev shell checksums sign
 .PHONY: install-local distro-tarball publish-cgp release deps verify-repos release-assets publish-all publish-all-safe
 .PHONY: release-variant docker-release-arch docker-push-arch
 
@@ -38,6 +38,12 @@ docker.build:
 # Build the builder image (calls docker.build inside the container)
 docker:
 	docker build -f docker/Dockerfile.build -t cognitiveos-builder .
+
+# Build a dev runtime image (CGO_ENABLED=0) for CI verification
+docker.dev:
+	docker build --build-arg CGO_ENABLED=0 \
+		-f docker/Dockerfile.release \
+		-t cognitiveos-dev .
 
 # --- Per-architecture release targets ---
 
@@ -125,7 +131,7 @@ verify-repos:
 			mkdir -p "/tmp/inference/vendor"; \
 			git clone --depth=1 https://github.com/ggerganov/llama.cpp.git "/tmp/inference/vendor/llama.cpp"; \
 		fi; \
-		CGO_ENABLED=0 make -C "/tmp/$$repo" build; \
+		CGO_ENABLED=1 make -C "/tmp/$$repo" build; \
 	done
 
 release-assets: install-local
