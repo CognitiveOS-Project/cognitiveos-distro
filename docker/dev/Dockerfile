@@ -9,12 +9,15 @@ COPY . .
 RUN make docker.build
 
 FROM alpine:edge
-RUN sed -i 's/#http/http/g' /etc/apk/repositories && apk update
-RUN apk update && apk add --no-cache \
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories && \
+    echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
+    apk update
+RUN apk add --no-cache \
     alpine-base busybox openrc linux-lts \
     alsa-utils alsa-lib \
     iw wpa_supplicant dhcpcd \
     libgpiod kbd mpv \
     dosfstools e2fsprogs squashfs-tools acpid
+
 COPY --from=builder /out/ /
 ENTRYPOINT ["/usr/local/bin/cognitiveos-cli"]

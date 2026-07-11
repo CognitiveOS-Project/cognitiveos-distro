@@ -9,7 +9,9 @@ COPY . .
 RUN make docker.build
 
 FROM alpine:edge
-RUN sed -i 's/#http/http/g' /etc/apk/repositories && apk update
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories && \
+    echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
+    apk update
 RUN apk add --no-cache \
     alpine-base busybox openrc linux-rpi \
     raspberrypi-bootloader raspberrypi-firmware \
