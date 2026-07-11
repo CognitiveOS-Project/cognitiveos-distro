@@ -64,14 +64,14 @@ docker-release-arch:
 		--build-arg CGO_ENABLED=1 \
 		-f docker/Dockerfile.release \
 		-t cognitiveos:$${VERSION}-$(CLASS)-$(ARCH) \
-		-t ghcr.io/CognitiveOS-Project/cognitiveos-distro:$${VERSION}-$(CLASS)-$(ARCH) \
+		-t ghcr.io/cognitiveos-project/cognitiveos-distro:$${VERSION}-$(CLASS)-$(ARCH) \
 		--load .
 
 docker-push-arch:
 	@VERSION=$$(cat VERSION 2>/dev/null || echo "dev"); \
 	ARCH=$(ARCH); \
 	CLASS=$(CLASS); \
-	docker push ghcr.io/CognitiveOS-Project/cognitiveos-distro:$${VERSION}-$(CLASS)-$(ARCH)
+	docker push ghcr.io/cognitiveos-project/cognitiveos-distro:$${VERSION}-$(CLASS)-$(ARCH)
 
 # --- Safe publish (exits 0 if REGISTRY_TOKEN missing) ---
 
