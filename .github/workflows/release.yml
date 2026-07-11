@@ -3,12 +3,11 @@ name: Release
 on:
   workflow_run:
     workflows:
-  - "Release standard-x86_64"
-  - "Release edge-aarch64"
-  - "Release edge-armv7"
-  - "Release gateway-x86_64"
-  - "Release micro-armv7"
-
+      - "Release standard-x86_64"
+      - "Release edge-aarch64"
+      - "Release edge-armv7"
+      - "Release gateway-x86_64"
+      - "Release micro-armv7"
     types: [completed]
   workflow_dispatch:
     inputs:
