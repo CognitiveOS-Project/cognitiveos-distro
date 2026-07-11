@@ -23,7 +23,13 @@ while [ $# -gt 0 ]; do
 done
 
 [ -n "$PROFILE" ] || { echo "ERROR: --profile is required"; exit 1; }
-[ -n "$PACKAGES_FILE" ] || PACKAGES_FILE="${SRC_DIR}/packages.${PROFILE}"
+if [ -f "${SRC_DIR}/packages.${CLASS}-${PROFILE}" ]; then
+    PACKAGES_FILE="${SRC_DIR}/packages.${CLASS}-${PROFILE}"
+elif [ -n "$PACKAGES_FILE" ]; then
+    :
+else
+    PACKAGES_FILE="${SRC_DIR}/packages.${PROFILE}"
+fi
 [ -f "$PACKAGES_FILE" ] || { echo "ERROR: packages file not found: $PACKAGES_FILE"; exit 1; }
 
 VERSION=$(cat "${SRC_DIR}/VERSION" 2>/dev/null || echo "0.0.0")

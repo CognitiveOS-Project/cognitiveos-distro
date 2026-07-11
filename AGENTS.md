@@ -16,8 +16,7 @@ orchestrator: it clones each repo, runs `make build && make test` in dependency 
 binaries. Each repo owns its own build, test, and toolchain (CGo, cross-compile, etc.).
 
 ### Workflow Notes
-- `jq` is required by `publish-cgp.sh`.
-- `build-iso.sh` and `build-rpi.sh` removed — both superseded by `build-image.sh --profile`.
+- Build assets via `make release-variant ARCH=<arch> CLASS=<class>`.
 
 ## Build Output
 
@@ -68,13 +67,12 @@ binaries. Each repo owns its own build, test, and toolchain (CGo, cross-compile,
 │       ├── inittab           # Boot into cognitiveos-cli
 │       ├── hostname
 │       └── cognitiveos/      # config.toml, registries.toml
-├── packages.*                # Alpine package lists per architecture
+├── packages.*                # Alpine package lists per variant
 ├── scripts/
 │   ├── build-binaries.sh     # Orchestrate per-repo builds (make build)
 │   ├── build-overlay.sh      # Assemble overlay from built binaries
-│   ├── build-image.sh        # Run mkimage with Docker fallback (--profile x86_64|aarch64)
+│   ├── build-image.sh        # Run mkimage with Docker fallback (--profile x86_64|aarch64|armv7)
 │   ├── build-distro-tarball.sh # Portable distro archive
-│   ├── publish-cgp.sh        # Build .cgp from binary + publish to registry
 │   └── sign.sh               # Checksums and GPG signatures
 ├── docker/
 │   ├── Dockerfile.build      # Cross-compilation build environment

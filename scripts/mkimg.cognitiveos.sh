@@ -24,6 +24,13 @@ profile_cognitiveos() {
             initfs_cmdline="console=tty0 console=ttyAMA0 modules=loop,squashfs,sd-mod,usb-storage quiet"
             initfs_features="base ext4 keymap mmc squashfs usb"
             ;;
+        armv7)
+            arch="armv7"
+            kernel_flavors="rpi"
+            kernel_addons=""
+            initfs_cmdline="console=tty0 console=ttyAMA0 modules=loop,squashfs,sd-mod,usb-storage quiet"
+            initfs_features="base ext4 keymap mmc squashfs usb"
+            ;;
     esac
 
     if [ -n "$COGNITIVEOS_PACKAGES_FILE" ] && [ -f "$COGNITIVEOS_PACKAGES_FILE" ]; then
