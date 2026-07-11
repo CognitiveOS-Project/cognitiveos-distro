@@ -7,11 +7,12 @@ REPOS="cpm cognitiveosd cli inference core-mcp-bridges"
 mkdir -p /out/bin/bridges
 
 for repo in $REPOS; do
-    git clone --depth=1 "git@github.com:CognitiveOS-Project/${repo}.git" "/src/${repo}"
+    gh repo clone "CognitiveOS-Project/${repo}" "/src/${repo}"
 done
 
+
 mkdir -p /src/inference/vendor
-git clone --depth=1 git@github.com:ggerganov/llama.cpp.git /src/inference/vendor/llama.cpp
+gh repo clone ggerganov/llama.cpp /src/inference/vendor/llama.cpp
 cd /src/inference/vendor/llama.cpp
 cmake -B build -DLLAMA_NATIVE=0 -DBUILD_SHARED_LIBS=0 \
     -DLLAMA_BUILD_TESTS=0 -DLLAMA_BUILD_EXAMPLES=0 -DLLAMA_BUILD_SERVER=0 \

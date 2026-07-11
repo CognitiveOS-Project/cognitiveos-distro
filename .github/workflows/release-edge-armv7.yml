@@ -17,11 +17,23 @@ jobs:
   build:
     timeout-minutes: 180
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version: "1.24"
+      - name: Set up SSH Keys
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY_CPM }}" > ~/.ssh/id_cpm && chmod 600 ~/.ssh/id_cpm
+          echo "${{ secrets.SSH_KEY_COGNITIVEOSD }}" > ~/.ssh/id_cogd && chmod 600 ~/.ssh/id_cogd
+          echo "${{ secrets.SSH_KEY_CLI }}" > ~/.ssh/id_cli && chmod 600 ~/.ssh/id_cli
+          echo "${{ secrets.SSH_KEY_INFERENCE }}" > ~/.ssh/id_inf && chmod 600 ~/.ssh/id_inf
+          echo "${{ secrets.SSH_KEY_CORE_MCP_BRIDGES }}" > ~/.ssh/id_bridges && chmod 600 ~/.ssh/id_bridges
+          echo "${{ secrets.SSH_KEY_COGNITIVEOS_DISTRO }}" > ~/.ssh/id_dist && chmod 600 ~/.ssh/id_dist
+          ssh-add ~/.ssh/id_cpm ~/.ssh/id_cogd ~/.ssh/id_cli ~/.ssh/id_inf ~/.ssh/id_bridges ~/.ssh/id_dist
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
