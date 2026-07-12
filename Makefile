@@ -144,7 +144,7 @@ release-assets: install-local
 	@VERSION=$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev"); \
 	echo "Building release assets for v$$VERSION..."; \
 	for combo in "standard-x86_64" "gateway-x86_64" "titan-aarch64" "edge-aarch64" "edge-armv7" "micro-armv7"; do \
-		CLASS=$${combo%/*}; ARCH=$${combo#*-}; \
+		CLASS=$${combo%-*}; ARCH=$${combo#*-}; \
 		echo "  Building $$combo..."; \
 		$(SHELL) $(SCRIPTS_DIR)/build-distro-tarball.sh "$$VERSION" "$$ARCH"; \
 		mkdir -p output; \

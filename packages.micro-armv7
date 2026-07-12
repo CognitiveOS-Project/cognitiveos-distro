@@ -3,7 +3,5 @@ busybox
 openrc
 linux-rpi
 raspberrypi-bootloader
-raspberrypi-firmware
-dhcpcd
 dosfstools
 e2fsprogs

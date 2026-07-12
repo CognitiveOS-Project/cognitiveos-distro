@@ -8,7 +8,8 @@ OVERLAY_DIR="${SRC_DIR}/overlay"
 BUILD_DIR="${SRC_DIR}/build"
 VERSION="${1:-$(date +%Y%m%d)}"
 ARCH="${2:-x86_64}"
-TARBALL="${OUTPUT_DIR}/cognitiveos-distro-${VERSION}-${ARCH}.tar.gz"
+CLASS="${3:-standard}"
+TARBALL="${OUTPUT_DIR}/cognitiveos-distro-${VERSION}-${CLASS}-${ARCH}.tar.gz"
 
 if [ ! -f "${BUILD_DIR}/bin/cpm" ]; then
     "${SRC_DIR}/scripts/build-binaries.sh"
@@ -23,7 +24,7 @@ trap 'rm -rf "$WORKDIR"' EXIT
 DISTDIR="${WORKDIR}/cognitiveos-distro-${VERSION}"
 mkdir -p "${DISTDIR}/rootfs" "${DISTDIR}/scripts"
 cp -r "${OVERLAY_DIR}/." "${DISTDIR}/rootfs/"
-cp "${SRC_DIR}/packages.${ARCH}" "${DISTDIR}/packages.txt" 2>/dev/null || true
+cp "${SRC_DIR}/packages.${CLASS}-${ARCH}" "${DISTDIR}/packages.txt" 2>/dev/null || true
 
 cat > "${DISTDIR}/VERSION" <<EOF
 COGNITIVEOS_DISTRO_VERSION=${VERSION}

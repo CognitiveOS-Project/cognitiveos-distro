@@ -1,0 +1,17 @@
+#!/sbin/openrc-run
+
+description="CognitiveOS Boot-Stage Dependency Collector"
+
+depend() {
+    # Must run before the daemon so that boot-stage deps are present
+    before cognitiveosd
+    # This is a one-shot service
+    keyword -stop
+}
+
+start() {
+    ebegin "Installing boot-stage dependencies"
+    # Use absolute path to cpm
+    /usr/local/bin/cpm install-dependencies --stage boot
+    eend $?
+}

@@ -11,7 +11,7 @@ MKIMAGE_DEPS="abuild apk-tools alpine-conf busybox fakeroot syslinux xorriso squ
 
 PROFILE=""
 PACKAGES_FILE=""
-CLASS="standard"
+CLASS=""
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -24,6 +24,10 @@ while [ $# -gt 0 ]; do
 done
 
 [ -n "$PROFILE" ] || { echo "ERROR: --profile is required"; exit 1; }
+
+# Fallback to 'edge' if no class is specified
+CLASS=${CLASS:-edge}
+
 if [ -f "${SRC_DIR}/packages.${CLASS}-${PROFILE}" ]; then
     PACKAGES_FILE="${SRC_DIR}/packages.${CLASS}-${PROFILE}"
 elif [ -n "$PACKAGES_FILE" ]; then

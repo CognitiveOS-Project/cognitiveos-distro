@@ -2,14 +2,7 @@ alpine-base
 busybox
 openrc
 linux-lts
-alsa-utils
-alsa-lib
-iw
-wpa_supplicant
-dhcpcd
-libgpiod
 kbd
-mpv
 dosfstools
 e2fsprogs
 squashfs-tools

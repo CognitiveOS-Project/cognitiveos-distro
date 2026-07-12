@@ -1,0 +1,20 @@
+#!/sbin/openrc-run
+
+description="CognitiveOS Runtime-Stage Dependency Collector"
+
+depend() {
+    # Runs after the daemon is up
+    after cognitiveosd
+    keyword -start -stop
+}
+
+start() {
+    ebegin "Processing runtime dependency queue"
+    /usr/local/bin/cpm install-dependencies --stage runtime
+    eend $?
+}
+
+stop() {
+    # No specific cleanup needed for this collector
+    return 0
+}
