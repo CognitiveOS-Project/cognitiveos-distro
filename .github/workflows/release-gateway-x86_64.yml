@@ -76,7 +76,7 @@ jobs:
             ## CognitiveOS ${{ github.ref_name }}
             ### x86_64 Artifacts
             - `cognitiveos-*.iso` — bootable x86_64 ISO image
-            - `cognitiveos-distro-*.tar.gz` — portable distro tarball
+            - `cognitiveos-alpine-distro-*.tar.gz` — portable distro tarball
             - `SHA256SUMS` — integrity checksums
             ### Docker Image
             Published to `ghcr.io/cognitiveos-project/cognitiveos:${{ github.ref_name }}-gateway-x86_64`

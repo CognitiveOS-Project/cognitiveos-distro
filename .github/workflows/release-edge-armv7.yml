@@ -76,7 +76,7 @@ jobs:
             ## CognitiveOS ${{ github.ref_name }}
             ### armv7 Artifacts
             - `cognitiveos-*.img` — armv7 Raspberry Pi image
-            - `cognitiveos-distro-*.tar.gz` — portable distro tarball
+            - `cognitiveos-alpine-distro-*.tar.gz` — portable distro tarball
             - `SHA256SUMS` — integrity checksums
             ### Docker Image
             Published to `ghcr.io/cognitiveos-project/cognitiveos:${{ github.ref_name }}-edge-armv7`

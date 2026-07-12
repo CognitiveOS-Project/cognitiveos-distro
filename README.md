@@ -1,4 +1,4 @@
-# cognitiveos-distro
+# cognitiveos-alpine-distro
 
 CognitiveOS distribution image builder — produces bootable Alpine Linux based OS images for x86_64 and ARM64 (Raspberry Pi). Handles custom Alpine Linux ISO generation, Go binary compilation (cpm, cognitiveosd, cli, inference, core-mcp-bridges), overlay assembly, and image signing.
 

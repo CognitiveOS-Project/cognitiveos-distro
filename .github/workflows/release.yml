@@ -77,7 +77,7 @@ jobs:
             ### Artifacts
             - `cognitiveos-*.iso` — bootable ISO images
             - `cognitiveos-*.img` — aarch64/armv7 images
-            - `cognitiveos-distro-*.tar.gz` — portable tarballs
+            - `cognitiveos-alpine-distro-*.tar.gz` — portable tarballs
             - `SHA256SUMS` — integrity checksums
 
             ### Docker Images

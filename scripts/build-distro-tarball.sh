@@ -9,7 +9,7 @@ BUILD_DIR="${SRC_DIR}/build"
 VERSION="${1:-$(date +%Y%m%d)}"
 ARCH="${2:-x86_64}"
 CLASS="${3:-standard}"
-TARBALL="${OUTPUT_DIR}/cognitiveos-distro-${VERSION}-${CLASS}-${ARCH}.tar.gz"
+TARBALL="${OUTPUT_DIR}/cognitiveos-alpine-distro-${VERSION}-${CLASS}-${ARCH}.tar.gz"
 
 if [ ! -f "${BUILD_DIR}/bin/cpm" ]; then
     "${SRC_DIR}/scripts/build-binaries.sh"
@@ -21,7 +21,7 @@ mkdir -p "${OUTPUT_DIR}"
 WORKDIR=$(mktemp -d)
 trap 'rm -rf "$WORKDIR"' EXIT
 
-DISTDIR="${WORKDIR}/cognitiveos-distro-${VERSION}"
+DISTDIR="${WORKDIR}/cognitiveos-alpine-distro-${VERSION}"
 mkdir -p "${DISTDIR}/rootfs" "${DISTDIR}/scripts"
 cp -r "${OVERLAY_DIR}/." "${DISTDIR}/rootfs/"
 cp "${SRC_DIR}/packages.${CLASS}-${ARCH}" "${DISTDIR}/packages.txt" 2>/dev/null || true
@@ -36,7 +36,7 @@ cp "${SRC_DIR}/scripts/build-image.sh" "${DISTDIR}/scripts/"
 cp "${SRC_DIR}/scripts/sign.sh" "${DISTDIR}/scripts/"
 
 cd "${WORKDIR}"
-tar czf "${TARBALL}" "cognitiveos-distro-${VERSION}/"
+tar czf "${TARBALL}" "cognitiveos-alpine-distro-${VERSION}/"
 
 sha256sum "$(basename "${TARBALL}")" >> "${OUTPUT_DIR}/SHA256SUMS" 2>/dev/null || true
 

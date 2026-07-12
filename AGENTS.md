@@ -23,7 +23,7 @@ binaries. Each repo owns its own build, test, and toolchain (CGo, cross-compile,
 - Bootable ISO image for x86_64
 - Raspberry Pi image (aarch64)
 - Bootable ARM image (armv7)
-- Docker image (`docker/Dockerfile.release` → `ghcr.io/CognitiveOS-Project/cognitiveos-distro`)
+- Docker image (`docker/Dockerfile.release` → `ghcr.io/CognitiveOS-Project/cognitiveos-alpine-distro`)
 - Distro tarball (portable overlay + binaries, build ISO/RPi on any Alpine host)
 - `.cgp` packages published to the CognitiveOS registry-server
 

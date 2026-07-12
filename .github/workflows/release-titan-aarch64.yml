@@ -75,7 +75,7 @@ jobs:
             ## CognitiveOS ${{ github.ref_name }}
             ### aarch64 Artifacts
             - `cognitiveos-*.img` — aarch64 Raspberry Pi image
-            - `cognitiveos-distro-*.tar.gz` — portable distro tarball
+            - `cognitiveos-alpine-distro-*.tar.gz` — portable distro tarball
             - `SHA256SUMS` — integrity checksums
             ### Docker Image
             Published to `ghcr.io/cognitiveos-project/cognitiveos:${{ github.ref_name }}-titan-aarch64`
