@@ -12,13 +12,15 @@ MKIMAGE_DEPS="abuild apk-tools alpine-conf busybox fakeroot syslinux xorriso squ
 PROFILE=""
 PACKAGES_FILE=""
 CLASS=""
+VERSION=""
 
 while [ $# -gt 0 ]; do
     case "$1" in
         --profile)    PROFILE="$2"; shift 2 ;;
         --class)      CLASS="$2"; shift 2 ;;
+        --version)    VERSION="$2"; shift 2 ;;
         --packages)   PACKAGES_FILE="$2"; shift 2 ;;
-        *) echo "Usage: $0 --profile x86_64|aarch64|armv7 [--class standard|edge|titan|gateway|micro] [--packages <file>]
+        *) echo "Usage: $0 --profile x86_64|aarch64|armv7 [--class standard|edge|titan|gateway|micro] [--version <ver>] [--packages <file>]
 "; exit 1 ;;
     esac
 done
@@ -37,7 +39,7 @@ else
 fi
 [ -f "$PACKAGES_FILE" ] || { echo "ERROR: packages file not found: $PACKAGES_FILE"; exit 1; }
 
-VERSION=$(cat "${SRC_DIR}/VERSION" 2>/dev/null || echo "0.0.0")
+VERSION=${VERSION:-$(git -C "${SRC_DIR}" describe --tags --abbrev=0 2>/dev/null || echo "dev")}
 # Default class by profile
 case "$PROFILE" in
     x86_64)  CLASS="${CLASS:-standard}" ;;

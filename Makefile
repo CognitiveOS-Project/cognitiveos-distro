@@ -48,16 +48,16 @@ docker.dev:
 # --- Per-architecture release targets ---
 
 release-variant: install-local
-	@VERSION=$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev"); \
+	@VERSION=$${VERSION:-$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev")}; \
 	echo "Building $(CLASS)-$(ARCH) release assets for v$$VERSION..."; \
 	$(SHELL) $(SCRIPTS_DIR)/build-distro-tarball.sh "$$VERSION" "$(ARCH)"; \
 	mkdir -p output; \
-	$(SHELL) $(SCRIPTS_DIR)/build-image.sh --profile $(ARCH) --class $(CLASS)
+	$(SHELL) $(SCRIPTS_DIR)/build-image.sh --profile $(ARCH) --class $(CLASS) --version "$$VERSION"
 
 # --- Docker per-arch targets ---
 
 docker-release-arch:
-	@VERSION=$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev"); \
+	@VERSION=$${VERSION:-$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev")}; \
 	case "$(ARCH)" in \
 		x86_64) PLATFORM=linux/amd64 ;; \
 		aarch64) PLATFORM=linux/arm64 ;; \
@@ -72,7 +72,7 @@ docker-release-arch:
 		--load .
 
 docker-push-arch:
-	@VERSION=$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev"); \
+	@VERSION=$${VERSION:-$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev")}; \
 	docker push ghcr.io/cognitiveos-project/cognitiveos:$${VERSION}-$(CLASS)-$(ARCH)
 
 # --- Convenience Targets ---
@@ -109,7 +109,8 @@ sign: checksums
 
 install-local: deps
 	$(SHELL) $(SCRIPTS_DIR)/build-binaries.sh
-	CLASS=$(CLASS) ARCH=$(ARCH) $(SHELL) $(SCRIPTS_DIR)/build-overlay.sh
+	VERSION=$${VERSION:-$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev")}; \
+	CLASS=$(CLASS) ARCH=$(ARCH) $(SHELL) $(SCRIPTS_DIR)/build-overlay.sh --version "$$VERSION"
 
 distro-tarball: install-local
 	$(SHELL) $(SCRIPTS_DIR)/build-distro-tarball.sh

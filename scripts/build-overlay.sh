@@ -6,6 +6,15 @@ SRC_DIR="$(realpath "$(dirname "$0")/..")"
 OVERLAY_DIR="${SRC_DIR}/overlay"
 BIN_DIR="${SRC_DIR}/build/bin"
 
+VERSION=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --version) VERSION="$2"; shift 2 ;;
+        *) echo "Usage: $0 [--version <ver>]"; exit 1 ;;
+    esac
+done
+VERSION=${VERSION:-$(git -C "${SRC_DIR}" describe --tags --abbrev=0 2>/dev/null || echo "dev")}
+
 rm -rf "${OVERLAY_DIR}/usr/local/bin"
 rm -rf "${OVERLAY_DIR}/usr/local/lib/cognitiveos/bridges"
 rm -rf "${OVERLAY_DIR}/cognitiveos/models/raw"
@@ -94,7 +103,6 @@ if [ -x "$CPM" ]; then
 fi
 
 # Generate image manifest
-VERSION=$(cat "${SRC_DIR}/VERSION" 2>/dev/null || echo "0.0.0")
 BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 cat > "${OVERLAY_DIR}/etc/cognitiveos/image-manifest.json" <<EOF
 {

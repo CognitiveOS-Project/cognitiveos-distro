@@ -21,6 +21,8 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-go@v5
         with:
           go-version: "1.24"
@@ -31,10 +33,12 @@ jobs:
       - name: Build release assets
         env:
           CGO_ENABLED: "1"
+          VERSION: ${{ github.event.inputs.version && format('v{0}', github.event.inputs.version) || github.ref_name }}
         run: make release-variant ARCH=x86_64 CLASS=standard
       - name: Build Docker image
         env:
           CGO_ENABLED: "1"
+          VERSION: ${{ github.event.inputs.version && format('v{0}', github.event.inputs.version) || github.ref_name }}
         run: make docker-release-arch ARCH=x86_64 CLASS=standard
       - name: Log in to GHCR
         uses: docker/login-action@v3
