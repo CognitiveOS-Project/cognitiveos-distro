@@ -57,7 +57,7 @@ release-variant: install-local
 # --- Docker per-arch targets ---
 
 docker-release-arch:
-	@VERSION=$$(cat VERSION 2>/dev/null || echo "dev"); \
+	@VERSION=$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev"); \
 	ARCH=$(ARCH); \
 	CLASS=$(CLASS); \
 	case "$$ARCH" in \
@@ -74,7 +74,7 @@ docker-release-arch:
 		--load .
 
 docker-push-arch:
-	@VERSION=$$(cat VERSION 2>/dev/null || echo "dev"); \
+	@VERSION=$$(git describe --tags --abbrev=0 2>/dev/null || echo "dev"); \
 	ARCH=$(ARCH); \
 	CLASS=$(CLASS); \
 	docker push ghcr.io/cognitiveos-project/cognitiveos:$${VERSION}-$(CLASS)-$(ARCH)
