@@ -7,7 +7,7 @@ OUTPUT_DIR="${SRC_DIR}/output"
 OVERLAY_DIR="${SRC_DIR}/overlay"
 APORTS_DIR="/tmp/aports"
 APORTS_GIT="https://gitlab.alpinelinux.org/alpine/aports.git"
-MKIMAGE_DEPS="abuild apk-tools alpine-conf busybox fakeroot syslinux xorriso squashfs-tools mtools grub-efi git"
+MKIMAGE_DEPS="abuild apk-tools alpine-conf busybox fakeroot syslinux xorriso squashfs-tools mtools grub-efi git go"
 
 PROFILE=""
 PACKAGES_FILE=""
@@ -98,6 +98,7 @@ if command -v apk >/dev/null 2>&1 && command -v git >/dev/null 2>&1; then
     [ "$(id -u)" -eq 0 ] && SUDO="" || SUDO="sudo"
     $SUDO apk add --no-cache "$MKIMAGE_DEPS"
     $SUDO abuild-keygen -a -n
+    $SUDO "${SRC_DIR}/scripts/install-build-deps.sh"
 
 
     if [ ! -d "$APORTS_DIR" ]; then
@@ -117,6 +118,7 @@ if command -v docker >/dev/null 2>&1; then
         -v "$SRC_DIR:/workspace" \
         alpine:edge sh -c "
             apk add --no-cache $MKIMAGE_DEPS
+            /workspace/scripts/install-build-deps.sh
             adduser -D builder
             git clone --depth=1 ${APORTS_GIT} ${APORTS_DIR}
             cp /workspace/scripts/mkimg.cognitiveos.sh ${APORTS_DIR}/scripts/
