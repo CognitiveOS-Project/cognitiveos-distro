@@ -23,13 +23,13 @@ log "Created runtime directories"
 # 1. Start cograw (raw model guardrail)
 if [ ! -f /cognitiveos/models/raw/raw-model.gguf ]; then
     log "Raw model GGUF not found. Starting cograw in mock mode (degraded)."
-    /usr/local/bin/cograw --backend mock --socket /cognitiveos/run/raw.sock &
+    /usr/local/bin/cograw --backend mock --socket /cognitiveos/run/raw.sock > /cognitiveos/logs/cograw.log 2>&1 &
 else
     log "Raw model GGUF found. Starting cograw in production mode."
-    /usr/local/bin/cograw --model /cognitiveos/models/raw/raw-model.gguf --socket /cognitiveos/run/raw.sock &
+    /usr/local/bin/cograw --model /cognitiveos/models/raw/raw-model.gguf --socket /cognitiveos/run/raw.sock > /cognitiveos/logs/cograw.log 2>&1 &
 fi
 COGRAW_PID=$!
-
+ 
 # Wait for raw.sock to appear
 log "Waiting for raw.sock..."
 COUNT=0
@@ -37,16 +37,16 @@ while [ ! -S /cognitiveos/run/raw.sock ] && [ $COUNT -lt 30 ]; do
     sleep 0.2
     COUNT=$((COUNT+1))
 done
-
+ 
 if [ ! -S /cognitiveos/run/raw.sock ]; then
     log "FATAL: cograw failed to start or raw.sock not created after 6s"
     exit 1
 fi
 log "raw.sock is ready"
-
+ 
 # 2. Start coginfer (wide model inference)
 log "Starting coginfer..."
-/usr/local/bin/coginfer --backend cgo --models /cognitiveos/models &
+/usr/local/bin/coginfer --backend cgo --models /cognitiveos/models > /cognitiveos/logs/coginfer.log 2>&1 &
 COGINFER_PID=$!
 
 # Wait for HTTP :11434/health to respond
