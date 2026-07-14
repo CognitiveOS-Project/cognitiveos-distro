@@ -11,6 +11,7 @@ RUN make docker.build
 FROM alpine:edge
 COPY scripts/bootstrap-docker-release.sh /usr/local/bin/
 COPY scripts/docker-init.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-init.sh
 COPY packages.gateway-x86_64 /tmp/packages
 RUN bootstrap-docker-release.sh /tmp/packages
 COPY --from=builder /src/build/out/ /
