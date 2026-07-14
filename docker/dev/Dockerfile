@@ -10,10 +10,10 @@ RUN make docker.build
 
 FROM alpine:edge
 COPY scripts/bootstrap-docker-release.sh /usr/local/bin/
-COPY scripts/docker-init.sh /usr/local/bin/entrypoint.sh
+COPY scripts/docker-init.sh /usr/local/bin/docker-init.sh
 COPY packages.standard-x86_64 /tmp/packages
 RUN bootstrap-docker-release.sh /tmp/packages
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-init.sh
 COPY --from=builder /src/build/out/ /
 RUN apk add --no-cache tini
 ENTRYPOINT ["/sbin/tini", "--"]
