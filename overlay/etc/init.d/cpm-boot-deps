@@ -3,15 +3,17 @@
 description="CognitiveOS Boot-Stage Dependency Collector"
 
 depend() {
-    # Must run before the daemon so that boot-stage deps are present
-    before cognitiveosd
+    need localmount
     # This is a one-shot service
     keyword -stop
 }
 
 start() {
     ebegin "Installing boot-stage dependencies"
-    # Use absolute path to cpm
+    if [ ! -x /usr/local/bin/cpm ]; then
+        eerror "FATAL: cpm binary not found at /usr/local/bin/cpm. Image is corrupted."
+        return 1
+    fi
     /usr/local/bin/cpm install-dependencies --stage boot
     eend $?
 }

@@ -9,10 +9,12 @@ log() {
 log "Starting CognitiveOS entrypoint..."
  
 # 0. Install boot-stage system dependencies
-if [ -x /usr/local/bin/cpm ]; then
-    log "Processing boot-stage system dependencies..."
-    /usr/local/bin/cpm install-dependencies --stage boot || log "WARN: boot-dependencies installation encountered issues"
+if [ ! -x /usr/local/bin/cpm ]; then
+    log "FATAL: cpm binary not found at /usr/local/bin/cpm. Image is corrupted."
+    exit 1
 fi
+log "Processing boot-stage system dependencies..."
+/usr/local/bin/cpm install-dependencies --stage boot || log "WARN: boot-dependencies installation encountered issues"
  
 # Create runtime directories
 mkdir -p /cognitiveos/run /cognitiveos/logs
@@ -83,10 +85,8 @@ fi
 log "daemon.sock is ready"
  
 # Process runtime-stage system dependencies
-if [ -x /usr/local/bin/cpm ]; then
-    log "Processing runtime-stage system dependencies..."
-    /usr/local/bin/cpm install-dependencies --stage runtime || log "WARN: runtime-dependencies installation encountered issues"
-fi
+log "Processing runtime-stage system dependencies..."
+/usr/local/bin/cpm install-dependencies --stage runtime || log "WARN: runtime-dependencies installation encountered issues"
  
 # 4. Exec CLI (replaces shell, becomes direct child of tini)
 log "Launching cognitiveos-cli..."

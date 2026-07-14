@@ -2,7 +2,7 @@
 description="CognitiveOS Raw Model Guardrail Server"
 
 depend() {
-    need localmount
+    need localmount cpm-boot-deps
     keyword -stop
 }
 
