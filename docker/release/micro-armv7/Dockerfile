@@ -10,7 +10,7 @@ RUN make docker.build
 
 FROM alpine:edge
 COPY scripts/bootstrap-docker-release.sh /usr/local/bin/
-COPY scripts/docker-init.sh /usr/local/bin/
+COPY scripts/docker-init.sh /usr/local/bin/entrypoint.sh
 COPY packages.micro-armv7 /tmp/packages
 RUN bootstrap-docker-release.sh /tmp/packages
 COPY --from=builder /src/build/out/ /
