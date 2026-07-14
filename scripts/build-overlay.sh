@@ -39,6 +39,12 @@ for f in "${BIN_DIR}"/*; do
     chmod 755 "${OVERLAY_DIR}/usr/local/bin/$name"
 done
 
+# Copy Docker entrypoint wrapper
+if [ -f "${SRC_DIR}/docker/scripts/entrypoint.sh" ]; then
+    cp "${SRC_DIR}/docker/scripts/entrypoint.sh" "${OVERLAY_DIR}/usr/local/bin/entrypoint.sh"
+    chmod 755 "${OVERLAY_DIR}/usr/local/bin/entrypoint.sh"
+fi
+
 if [ -d "${BIN_DIR}/bridges" ]; then
     for f in "${BIN_DIR}/bridges/"*; do
         [ -f "$f" ] || continue

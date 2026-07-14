@@ -13,3 +13,4 @@ libgpiod
 iputils
 curl
 nmap
+tini

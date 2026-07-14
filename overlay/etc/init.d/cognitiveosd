@@ -1,0 +1,15 @@
+#!/sbin/openrc-run
+description="CognitiveOS Daemon"
+
+depend() {
+    need cograw
+    after coginfer
+    before cpm-runtime-deps
+    keyword -stop
+}
+
+command=/usr/local/bin/cognitiveosd
+command_background=true
+pidfile=/run/cognitiveosd.pid
+output_log=/cognitiveos/logs/cognitiveosd.log
+error_log=${output_log}

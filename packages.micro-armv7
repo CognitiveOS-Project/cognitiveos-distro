@@ -6,3 +6,4 @@ raspberrypi-bootloader
 dosfstools
 e2fsprogs
 dhcpcd
+tini

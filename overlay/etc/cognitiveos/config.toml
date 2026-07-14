@@ -5,7 +5,7 @@ autologin = true
 
 [inference]
 idle_timeout_seconds = 300
-backend = "cli"
+backend = "cgo"
 endpoint = "http://127.0.0.1:11434"
 
 [raw_model]
