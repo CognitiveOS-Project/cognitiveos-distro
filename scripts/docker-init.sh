@@ -76,12 +76,6 @@ if [ ! -S /cognitiveos/run/daemon.sock ]; then
 fi
 log "daemon.sock is ready"
 
-# 4. Launch CLI
-if [ -t 0 ]; then
-    log "TTY detected. Launching cognitiveos-cli..."
-    exec /usr/local/bin/cognitiveos-cli
-else
-    log "No TTY detected. Skipping cognitiveos-cli launch (TUI requires interactive terminal)."
-    log "Keeping container alive for daemon verification..."
-    tail -f /dev/null
-fi
+# 4. Exec CLI (replaces shell, becomes direct child of tini)
+log "Launching cognitiveos-cli..."
+exec /usr/local/bin/cognitiveos-cli
