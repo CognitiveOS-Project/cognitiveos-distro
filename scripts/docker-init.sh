@@ -78,10 +78,10 @@ log "daemon.sock is ready"
 
 # 4. Launch CLI
 if [ -t 0 ]; then
-    log "TTY detected. Launching cognitiveos-cli in foreground..."
+    log "TTY detected. Launching cognitiveos-cli..."
     exec /usr/local/bin/cognitiveos-cli
 else
-    log "No TTY detected. Launching cognitiveos-cli in background and keeping container alive for verification..."
-    /usr/local/bin/cognitiveos-cli &
+    log "No TTY detected. Skipping cognitiveos-cli launch (TUI requires interactive terminal)."
+    log "Keeping container alive for daemon verification..."
     tail -f /dev/null
 fi
