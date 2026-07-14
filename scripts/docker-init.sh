@@ -81,7 +81,13 @@ if [ ! -S /cognitiveos/run/daemon.sock ]; then
     exit 1
 fi
 log "daemon.sock is ready"
-
+ 
+# Process runtime-stage system dependencies
+if [ -x /usr/local/bin/cpm ]; then
+    log "Processing runtime-stage system dependencies..."
+    /usr/local/bin/cpm install-dependencies --stage runtime || log "WARN: runtime-dependencies installation encountered issues"
+fi
+ 
 # 4. Exec CLI (replaces shell, becomes direct child of tini)
 log "Launching cognitiveos-cli..."
 exec /usr/local/bin/cognitiveos-cli
