@@ -2,6 +2,7 @@
 /output/
 /iso/
 /images/
+/build/
 *.iso
 *.img
 
