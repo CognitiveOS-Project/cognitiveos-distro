@@ -28,6 +28,7 @@ else
     log "Raw model GGUF found. Starting cograw in production mode."
     /usr/local/bin/cograw --model /cognitiveos/models/raw/raw-model.gguf --socket /cognitiveos/run/raw.sock > /cognitiveos/logs/cograw.log 2>&1 &
 fi
+# shellcheck disable=SC2034
 COGRAW_PID=$!
  
 # Wait for raw.sock to appear
@@ -47,6 +48,7 @@ log "raw.sock is ready"
 # 2. Start coginfer (wide model inference)
 log "Starting coginfer..."
 /usr/local/bin/coginfer --backend cgo --models /cognitiveos/models > /cognitiveos/logs/coginfer.log 2>&1 &
+# shellcheck disable=SC2034
 COGINFER_PID=$!
 
 # Wait for HTTP :11434/health to respond
@@ -68,6 +70,7 @@ log "coginfer is ready (or timed out)"
 # 3. Start cognitiveosd (main daemon)
 log "Starting cognitiveosd..."
 /usr/local/bin/cognitiveosd &
+# shellcheck disable=SC2034
 DAEMON_PID=$!
 
 # Wait for daemon.sock to appear
