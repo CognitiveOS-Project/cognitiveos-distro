@@ -87,8 +87,16 @@ jobs:
             - `SHA256SUMS` — integrity checksums
 
             ### Docker Images
-            Published to `ghcr.io/cognitiveos-project/cognitiveos:VERSION-CLASS-ARCH`
-            Example: `ghcr.io/cognitiveos-project/cognitiveos:${{ github.event.workflow_run.head_branch }}-standard-x86_64`
+            Published to `ghcr.io/cognitiveos-project/cognitiveos:<tag>-<class>-<arch>`
+
+            ```
+            docker pull ghcr.io/cognitiveos-project/cognitiveos:${{ github.event.workflow_run.head_branch }}-standard-x86_64
+            docker pull ghcr.io/cognitiveos-project/cognitiveos:${{ github.event.workflow_run.head_branch }}-gateway-x86_64
+            docker pull ghcr.io/cognitiveos-project/cognitiveos:${{ github.event.workflow_run.head_branch }}-titan-aarch64
+            docker pull ghcr.io/cognitiveos-project/cognitiveos:${{ github.event.workflow_run.head_branch }}-edge-aarch64
+            docker pull ghcr.io/cognitiveos-project/cognitiveos:${{ github.event.workflow_run.head_branch }}-edge-armv7
+            docker pull ghcr.io/cognitiveos-project/cognitiveos:${{ github.event.workflow_run.head_branch }}-micro-armv7
+            ```
 
             ### Registry Packages
             Core components published as .cgp packages to the official CognitiveOS registry.
