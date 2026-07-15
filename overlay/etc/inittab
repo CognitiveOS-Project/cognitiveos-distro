@@ -1,8 +1,8 @@
 ::sysinit:/sbin/openrc sysinit
 ::sysinit:/sbin/openrc boot
 ::wait:/sbin/openrc default
-tty1::respawn:/usr/local/bin/cognitiveos-cli
-ttyS0::respawn:/usr/local/bin/cognitiveos-cli
+tty1::respawn:/usr/local/bin/coginit --bare-metal
+ttyS0::respawn:/usr/local/bin/coginit --bare-metal
 tty2::respawn:/sbin/getty 38400 tty2
 ::ctrlaltdel:/sbin/reboot
 ::shutdown:/sbin/openrc shutdown

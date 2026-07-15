@@ -8,7 +8,7 @@ BUILD_DIR="${SRC_DIR}/build"
 BIN_DIR="${BUILD_DIR}/bin"
 
 # Dependency order: repos with no runtime deps first, then those that depend on them.
-REPOS="cpm inference core-mcp-bridges cognitiveosd cli"
+REPOS="coginit cpm inference core-mcp-bridges cognitiveosd cli"
 
 rm -rf "${BIN_DIR}"
 mkdir -p "${BIN_DIR}"
