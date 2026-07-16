@@ -6,6 +6,10 @@
 *.iso
 *.img
 
+# Build-generated overlay binaries (rebuilt every build)
+overlay/usr/local/bin/
+overlay/usr/local/lib/cognitiveos/bridges/
+
 # Alpine build cache
 /cache/
 /work/
