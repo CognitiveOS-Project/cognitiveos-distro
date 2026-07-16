@@ -15,11 +15,11 @@ SCRIPTS_DIR := ./scripts
 
 all: iso rpi checksums sign
 
-iso: install-local
-	$(SHELL) $(SCRIPTS_DIR)/build-image.sh --profile x86_64
+iso:
+	$(MAKE) release-variant ARCH=x86_64 CLASS=standard
 
-rpi: install-local
-	$(SHELL) $(SCRIPTS_DIR)/build-image.sh --profile aarch64
+rpi:
+	$(MAKE) release-variant ARCH=aarch64 CLASS=edge
 
 clean:
 	rm -rf $(BUILD_DIR) $(OUTPUT_DIR) *.iso *.img *.tar.gz
