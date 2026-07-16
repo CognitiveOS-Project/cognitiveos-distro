@@ -98,10 +98,8 @@ run_mkimage() {
 if command -v apk >/dev/null 2>&1 && command -v git >/dev/null 2>&1; then
     echo "  -> Alpine + git found, building natively"
     [ "$(id -u)" -eq 0 ] && SUDO="" || SUDO="sudo"
-    $SUDO apk add --no-cache "$MKIMAGE_DEPS"
-    $SUDO abuild-keygen -a -n
+    $SUDO apk add --no-cache $MKIMAGE_DEPS
     $SUDO "${SRC_DIR}/scripts/install-build-deps.sh"
-
 
     if [ ! -d "$APORTS_DIR" ]; then
         git clone --depth=1 "$APORTS_GIT" "$APORTS_DIR"
@@ -109,7 +107,25 @@ if command -v apk >/dev/null 2>&1 && command -v git >/dev/null 2>&1; then
         git -C "$APORTS_DIR" fetch --depth=1 origin
         git -C "$APORTS_DIR" reset --hard origin/master
     fi
-    run_mkimage "$APORTS_DIR"
+
+    if [ "$(id -u)" -eq 0 ]; then
+        id builder >/dev/null 2>&1 || adduser -D builder
+        chown -R builder:builder "$APORTS_DIR" "$OUTPUT_DIR"
+        su builder -p -c "
+            export HOME=/home/builder
+            export COGNITIVEOS_PACKAGES_FILE='$PACKAGES_FILE'
+            export COGNITIVEOS_OVERLAY_DIR='$OVERLAY_DIR'
+            abuild-keygen -a -n
+            cd '$APORTS_DIR/scripts'
+            ./mkimage.sh --profile cognitiveos --outdir '$OUTPUT_DIR' --arch '$PROFILE' \
+                --repository 'https://dl-cdn.alpinelinux.org/alpine/edge/main' \
+                --repository 'https://dl-cdn.alpinelinux.org/alpine/edge/community' \
+                --tag '$TAG'
+        "
+    else
+        abuild-keygen -a -n
+        run_mkimage "$APORTS_DIR"
+    fi
     exit 0
 fi
 
