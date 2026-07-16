@@ -10,6 +10,10 @@ BIN_DIR="${BUILD_DIR}/bin"
 # Dependency order: repos with no runtime deps first, then those that depend on them.
 REPOS="coginit cpm inference core-mcp-bridges cognitiveosd cli"
 
+# Default to production mode (CGO_ENABLED=1) for real inference.
+# Docker builds override via ENV CGO_ENABLED in Dockerfile.
+export CGO_ENABLED="${CGO_ENABLED:-1}"
+
 rm -rf "${BIN_DIR}"
 mkdir -p "${BIN_DIR}"
 
