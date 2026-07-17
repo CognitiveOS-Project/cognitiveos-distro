@@ -55,7 +55,7 @@ jobs:
           path: output/
       - name: Publish .cgp packages to registry
         env:
-          REGISTRY_URL: ${{ secrets.REGISTRY_URL || 'https://registry-us-all-distros-official.registry.cognitive-os.org/v1' }}
+          REGISTRY_URL: ${{ secrets.REGISTRY_URL || 'https://registry-us-all-distros-official.cognitive-os.org/v1' }}
           REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
         run: make publish-all-safe
 
