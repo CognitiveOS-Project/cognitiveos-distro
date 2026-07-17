@@ -16,6 +16,6 @@ dosfstools
 e2fsprogs
 squashfs-tools
 acpid
-fbv
-fbi
-gpiod-tools
+espeak
+mpg123
+fbida-fbi
