@@ -66,6 +66,7 @@ Each Go component builds independently via its own Makefile:
 - [cli](https://github.com/CognitiveOS-Project/cli) — TUI included in the distro
 - [inference](https://github.com/CognitiveOS-Project/inference) — inference engine included in the distro
 - [core-mcp-bridges](https://github.com/CognitiveOS-Project/core-mcp-bridges) — MCP bridges included in the distro
+- [coginit](https://github.com/CognitiveOS-Project/coginit) — boot manager included in the distro
 - [Product Specs](https://github.com/CognitiveOS-Project/product-specs) — distro build specification
 - [CognitiveOS Project](https://github.com/CognitiveOS-Project) — GitHub organization
 
