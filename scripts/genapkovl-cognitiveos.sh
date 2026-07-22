@@ -81,10 +81,7 @@ for svc in mount-ro killprocs savecache; do rc_add "$svc" shutdown; done
 rc_add acpid default
 
 # CognitiveOS services
-rc_add cograw default
-rc_add coginfer default
 rc_add cpm-boot-deps default
-rc_add cognitiveosd default
 rc_add cpm-runtime-deps default
 
 tar -c -C "$tmp" etc | gzip -9n > "$HOSTNAME.apkovl.tar.gz"
